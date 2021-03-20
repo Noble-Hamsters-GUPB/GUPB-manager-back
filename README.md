@@ -1,2 +1,3 @@
-# GUPB-manager-back
-A manager application for GUPB.
+# GUPB Manager (backend)
+
+Manager appication for GUPB (https://github.com/Prpht/GUPB) - backend.
