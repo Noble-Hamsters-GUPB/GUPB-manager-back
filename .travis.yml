@@ -1,6 +1,7 @@
 language:  java
 env:
   -DB=mysql
+os: windows
 branches:
   only:
     - main
