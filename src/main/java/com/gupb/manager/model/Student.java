@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = Team.TABLE_NAME)
+@Table(name = Student.TABLE_NAME)
 public class Student {
 
     public static final String TABLE_NAME = "student";
