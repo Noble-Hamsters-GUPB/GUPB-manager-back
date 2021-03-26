@@ -2,6 +2,18 @@ plugins {
 	id 'org.springframework.boot' version '2.4.4'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'checkstyle'
+}
+
+checkstyle {
+	toolVersion = '8.41'
+	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+checkstyleMain {
+	source ='src/main/java'
+}
+checkstyleTest {
+	source ='src/test/java'
 }
 
 group = 'com.gupb.manager'
