@@ -2,6 +2,7 @@ package com.gupb.manager.controllers;
 
 import com.gupb.manager.model.Tournament;
 import com.gupb.manager.repositories.TournamentRepository;
+import com.gupb.manager.scheduler.SchedulerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,9 @@ public class TournamentController {
     @Autowired
     private TournamentRepository tournamentRepository;
 
+    @Autowired
+    private SchedulerConfig schedulerConfig;
+
     @GetMapping("/tournaments")
     public Iterable<Tournament> getTournaments() {
         return tournamentRepository.findAll();
@@ -20,6 +24,8 @@ public class TournamentController {
     
     @PostMapping("/tournaments")
     public Tournament createTournament(@RequestBody Tournament tournament) {
-        return tournamentRepository.save(tournament);
+        Tournament newTournament = tournamentRepository.save(tournament);
+        schedulerConfig.appointTournament(newTournament.getStartTime());
+        return newTournament;
     }
 }
