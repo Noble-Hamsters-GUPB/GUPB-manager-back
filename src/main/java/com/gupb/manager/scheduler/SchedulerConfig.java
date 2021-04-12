@@ -5,6 +5,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,8 +26,8 @@ public class SchedulerConfig {
         scheduler.schedule(runnable, taskDate);
     }
 
-    public void appointTournament(Date date) {
-        this.taskDate = date;
+    public void appointTournament(LocalDateTime date) {
+        this.taskDate = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
         planTournament();
     }
 }

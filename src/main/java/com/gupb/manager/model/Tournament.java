@@ -1,7 +1,7 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -15,43 +15,57 @@ public class Tournament {
     @Column(name = Columns.ID)
     private int id;
 
-    @Column(name = Columns.START_TIME)
-    private Date startTime;
+    @Column(name = Columns.DATE)
+    private LocalDateTime date;
 
-    @Column(name = Columns.GITHUB_LINK)
-    private String githubLink;
+    @Column(name = Columns.NAME)
+    private String name;
+
+    @Column(columnDefinition = "ENUM('OPEN', 'RESTRICTED', 'INVITE_ONLY')", name = Columns.ACCESS_MODE)
+    @Enumerated(EnumType.STRING)
+    private AccessMode accessMode;
 
     public int getId() {
         return id;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public LocalDateTime getDate() {
+        return date;
     }
 
-    public String getGithubLink() {
-        return githubLink;
+    public String getName() {
+        return name;
+    }
+
+    public AccessMode getAccessMode() {
+        return accessMode;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
-    public void setGithubLink(String githubLink) {
-        this.githubLink = githubLink;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAccessMode(AccessMode accessMode) {
+        this.accessMode = accessMode;
     }
 
     public static class Columns {
 
         public static final String ID = "id";
 
-        public static final String START_TIME = "start_time";
+        public static final String DATE = "date";
 
-        public static final String GITHUB_LINK = "github_link";
+        public static final String NAME = "name";
+
+        public static final String ACCESS_MODE = "access_mode";
     }
 
     @Override
@@ -60,12 +74,13 @@ public class Tournament {
         if (o == null || getClass() != o.getClass()) return false;
         Tournament that = (Tournament) o;
         return id == that.id &&
-                Objects.equals(startTime, that.startTime) &&
-                Objects.equals(githubLink, that.githubLink);
+                Objects.equals(date, that.date) &&
+                Objects.equals(name, that.name) &&
+                accessMode == that.accessMode;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, startTime, githubLink);
+        return Objects.hash(id, date, name, accessMode);
     }
 }
