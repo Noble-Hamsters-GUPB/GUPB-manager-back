@@ -1,6 +1,7 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -20,6 +21,9 @@ public class Team {
     @Column(name = Columns.GITHUB_LINK)
     private String githubLink;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    List<Student> members;
+
     public int getId() {
         return id;
     }
@@ -30,6 +34,10 @@ public class Team {
 
     public String getGithubLink() {
         return githubLink;
+    }
+
+    public List<Student> getMembers() {
+        return members;
     }
 
     public void setId(int id) {

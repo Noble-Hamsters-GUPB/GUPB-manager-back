@@ -24,6 +24,9 @@ public class Student {
     @Column(name = Columns.LAST_NAME)
     private String lastName;
 
+    @Column(name = Columns.INDEX_NUMBER)
+    private int indexNumber;
+
     public int getId() {
         return id;
     }
@@ -39,6 +42,8 @@ public class Student {
     public String getLastName() {
         return lastName;
     }
+
+    public int getIndexNumber() { return indexNumber; }
 
     public void setId(int id) {
         this.id = id;
@@ -56,6 +61,8 @@ public class Student {
         this.lastName = lastName;
     }
 
+    public void setIndexNumber(int indexNumber) { this.indexNumber = indexNumber; }
+
     private static class Columns {
 
         public static final String ID = "id";
@@ -65,6 +72,8 @@ public class Student {
         public static final String FIRST_NAME = "first_name";
 
         public static final String LAST_NAME = "last_name";
+
+        public static final String INDEX_NUMBER = "index_number";
     }
 
     @Override
@@ -75,7 +84,8 @@ public class Student {
         return id == student.id &&
                 Objects.equals(team, student.team) &&
                 Objects.equals(firstName, student.firstName) &&
-                Objects.equals(lastName, student.lastName);
+                Objects.equals(lastName, student.lastName) &&
+                Objects.equals(indexNumber, student.indexNumber);
     }
 
     @Override
