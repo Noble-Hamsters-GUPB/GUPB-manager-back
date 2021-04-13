@@ -1,3 +1,9 @@
+### GUPB git dirs ###
+GUPB-master/
+
+### runner logs ###
+setup_logs_dir/
+
 HELP.md
 .gradle
 build/
