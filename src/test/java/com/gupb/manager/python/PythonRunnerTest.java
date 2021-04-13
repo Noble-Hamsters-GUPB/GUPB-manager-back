@@ -1,6 +1,5 @@
-package com.gupb.manager.GUPBManager;
+package com.gupb.manager.python;
 
-import com.gupb.manager.python.PythonRunner;
 import org.junit.jupiter.api.Test;
 
 public class PythonRunnerTest {
