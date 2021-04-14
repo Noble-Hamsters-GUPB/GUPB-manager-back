@@ -15,7 +15,6 @@ public class Student {
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = Columns.TEAM_ID)
     private Team team;
 
     @Column(name = Columns.FIRST_NAME)
@@ -26,6 +25,15 @@ public class Student {
 
     @Column(name = Columns.INDEX_NUMBER)
     private int indexNumber;
+
+    public Student() {}
+
+    public Student(Team team, String firstName, String lastName, int indexNumber) {
+        this.team = team;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.indexNumber = indexNumber;
+    }
 
     public int getId() {
         return id;
