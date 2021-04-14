@@ -1,5 +1,7 @@
 package com.gupb.manager.scheduler;
 
+import com.gupb.manager.python.PythonRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
@@ -16,14 +18,16 @@ public class SchedulerConfig {
 
     private TaskScheduler scheduler;
 
+    @Autowired
+    private PythonRunner pythonRunner;
+
     private Date taskDate;
 
     @Async
     public void planTournament() {
-        Runnable runnable = () -> System.out.println("Tournament planned for " + taskDate + " started at " + new Date());
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduler = new ConcurrentTaskScheduler(localExecutor);
-        scheduler.schedule(runnable, taskDate);
+        scheduler.schedule(pythonRunner, taskDate);
     }
 
     public void appointTournament(LocalDateTime date) {

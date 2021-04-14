@@ -1,11 +1,14 @@
 package com.gupb.manager.python;
 
+import org.springframework.stereotype.Component;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Component
 public class PythonRunner implements Runnable {
     private static final OSType operatingSystem = OSType.getOSType();
     private static final ReentrantLock lock = new ReentrantLock();
