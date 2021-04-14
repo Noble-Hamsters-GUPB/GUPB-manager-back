@@ -13,9 +13,9 @@ public class PythonRunner implements Runnable {
     private final String[] pathToPythonElements = {"src", "main", "java", "com", "gupb", "manager", "python"};
     private final String runnerDirPathRelativeToApp = String.join(File.separator, pathToPythonElements) + File.separator;
     private final String runnerDirPath = String.join(File.separator, new String[]{appRootDirPath, runnerDirPathRelativeToApp});
-
-    String[] argsWindowsArray = {runnerDirPath + "script.bat", "\"" + runnerDirPath + "\"", "GUPB-master"};
-    String[] argsUnixArray = {"/usr/bin/env", "bash", "script.sh"};
+    private final String gupbDirName = "GUPB-master";
+    private final String[] argsWindowsArray = {runnerDirPath + "script.bat", "\"" + runnerDirPath + "\"", gupbDirName};
+    private final String[] argsUnixArray = {"/usr/bin/env", "bash", runnerDirPath + "script.sh", "\"" + runnerDirPath + "\"", gupbDirName};
 
     public PythonRunner() {}
 
