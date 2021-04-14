@@ -21,8 +21,12 @@ public class Team {
     @Column(name = Columns.GITHUB_LINK)
     private String githubLink;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    List<Student> members;
+    public Team() {}
+
+    public Team(String name, String githubLink) {
+        this.name = name;
+        this.githubLink = githubLink;
+    }
 
     public int getId() {
         return id;
@@ -34,10 +38,6 @@ public class Team {
 
     public String getGithubLink() {
         return githubLink;
-    }
-
-    public List<Student> getMembers() {
-        return members;
     }
 
     public void setId(int id) {
