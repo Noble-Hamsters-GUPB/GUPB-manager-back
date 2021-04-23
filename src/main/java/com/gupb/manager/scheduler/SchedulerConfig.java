@@ -24,14 +24,14 @@ public class SchedulerConfig {
     private Date taskDate;
 
     @Async
-    public void planTournament() {
+    public void planRound() {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduler = new ConcurrentTaskScheduler(localExecutor);
         scheduler.schedule(pythonRunner, taskDate);
     }
 
-    public void appointTournament(LocalDateTime date) {
+    public void appointRound(LocalDateTime date) {
         this.taskDate = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
-        planTournament();
+        planRound();
     }
 }

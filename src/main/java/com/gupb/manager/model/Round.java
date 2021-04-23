@@ -2,6 +2,7 @@ package com.gupb.manager.model;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -22,8 +23,8 @@ public class Round {
     @Column(name = Columns.NUMBER)
     private int number;
 
-    @Column(name = Columns.START_TIME)
-    private Date startTime;
+    @Column(name = Columns.DATE)
+    private LocalDateTime date;
 
     public int getId() {
         return id;
@@ -37,8 +38,8 @@ public class Round {
         return number;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public LocalDateTime getDate() {
+        return date;
     }
 
     public void setId(int id) {
@@ -53,8 +54,8 @@ public class Round {
         this.number = number;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public static class Columns {
@@ -65,7 +66,7 @@ public class Round {
 
         public static final String NUMBER = "number";
 
-        public static final String START_TIME = "start_name";
+        public static final String DATE = "date";
     }
 
     @Override
@@ -76,11 +77,11 @@ public class Round {
         return id == round.id &&
                 number == round.number &&
                 Objects.equals(tournament, round.tournament) &&
-                Objects.equals(startTime, round.startTime);
+                Objects.equals(date, round.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, number, startTime);
+        return Objects.hash(id, tournament, number, date);
     }
 }

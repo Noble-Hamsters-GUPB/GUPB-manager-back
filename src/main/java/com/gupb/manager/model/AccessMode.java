@@ -1,6 +1,7 @@
 package com.gupb.manager.model;
 
 public enum AccessMode {
+
     OPEN("Open"),
     RESTRICTED("Restricted"),
     INVITE_ONLY("Invite only");

@@ -15,9 +15,6 @@ public class Tournament {
     @Column(name = Columns.ID)
     private int id;
 
-    @Column(name = Columns.DATE)
-    private LocalDateTime date;
-
     @Column(name = Columns.NAME)
     private String name;
 
@@ -27,10 +24,6 @@ public class Tournament {
 
     public int getId() {
         return id;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
     }
 
     public String getName() {
@@ -45,10 +38,6 @@ public class Tournament {
         this.id = id;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -61,8 +50,6 @@ public class Tournament {
 
         public static final String ID = "id";
 
-        public static final String DATE = "date";
-
         public static final String NAME = "name";
 
         public static final String ACCESS_MODE = "access_mode";
@@ -74,13 +61,12 @@ public class Tournament {
         if (o == null || getClass() != o.getClass()) return false;
         Tournament that = (Tournament) o;
         return id == that.id &&
-                Objects.equals(date, that.date) &&
                 Objects.equals(name, that.name) &&
                 accessMode == that.accessMode;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, date, name, accessMode);
+        return Objects.hash(id, name, accessMode);
     }
 }

@@ -24,8 +24,6 @@ public class TournamentController {
     
     @PostMapping("/tournaments")
     public Tournament createTournament(@RequestBody Tournament tournament) {
-        Tournament newTournament = tournamentRepository.save(tournament);
-        schedulerConfig.appointTournament(newTournament.getDate());
-        return newTournament;
+        return tournamentRepository.save(tournament);
     }
 }
