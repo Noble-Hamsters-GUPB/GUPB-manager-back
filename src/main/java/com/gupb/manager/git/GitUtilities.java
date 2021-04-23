@@ -2,10 +2,12 @@ package com.gupb.manager.git;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 
+@Component
 public class GitUtilities {
 
     public void cloneRepository(String source, String destination, String branch) throws GitAPIException {
