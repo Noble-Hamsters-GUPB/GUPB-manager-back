@@ -26,7 +26,7 @@ public class BotTester {
 
     public void testTeamBot(Team team) throws IOException, GitAPIException {
 
-        gameProvider.provideTestGameWithBot(pathRelativeToApp, dirName, team);
+        gameProvider.provideTestRoundWithBot(pathRelativeToApp, dirName, team);
         pythonRunner.setExecutionPath(pathRelativeToApp, dirName);
         pythonRunner.setTeam(team);
         pythonRunner.run();
