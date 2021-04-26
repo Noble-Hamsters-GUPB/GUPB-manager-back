@@ -22,6 +22,13 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private AccessMode accessMode;
 
+    public Tournament() {}
+
+    public Tournament(String name, AccessMode accessMode) {
+        this.name = name;
+        this.accessMode = accessMode;
+    }
+
     public int getId() {
         return id;
     }
