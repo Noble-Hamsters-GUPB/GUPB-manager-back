@@ -21,12 +21,12 @@ public class TeamController {
     @Autowired
     private StudentRepository studentRepository;
 
-    @GetMapping("/groups")
+    @GetMapping("/teams")
     public Iterable<Team> getTournaments() {
         return teamRepository.findAll();
     }
 
-    @PostMapping("/groups")
+    @PostMapping("/teams")
     @Transactional
     public Team createTeam(@RequestBody String teamString) {
         JSONObject teamData = new JSONObject(teamString);
