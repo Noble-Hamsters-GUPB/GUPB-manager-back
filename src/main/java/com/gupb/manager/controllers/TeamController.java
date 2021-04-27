@@ -21,18 +21,18 @@ public class TeamController {
     @Autowired
     private StudentRepository studentRepository;
 
-    @GetMapping("/groups")
+    @GetMapping("/teams")
     public Iterable<Team> getTournaments() {
         return teamRepository.findAll();
     }
 
-    @PostMapping("/groups")
+    @PostMapping("/teams")
     @Transactional
     public Team createTeam(@RequestBody String teamString) {
-        JSONObject teamdata = new JSONObject(teamString);
-        Team team = new Team(teamdata.getString("name"), teamdata.getString("githubLink"));
-        JSONArray members =  teamdata.getJSONArray("members");
-        for(int i = 0; i< members.length(); i++){
+        JSONObject teamData = new JSONObject(teamString);
+        Team team = new Team(teamData.getString("name"), teamData.getString("githubLink"));
+        JSONArray members =  teamData.getJSONArray("members");
+        for(int i = 0; i < members.length(); i++){
             JSONObject member = members.getJSONObject(i);
             Student student = new Student(team, member.getString("firstName"), member.getString("lastName"), member.getInt("indexNumber"));
             studentRepository.save(student);

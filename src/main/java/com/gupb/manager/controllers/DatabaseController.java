@@ -1,4 +1,4 @@
-package com.gupb.manager.DBcontroller;
+package com.gupb.manager.controllers;
 
 import com.gupb.manager.model.Team;
 import com.gupb.manager.repositories.TeamRepository;

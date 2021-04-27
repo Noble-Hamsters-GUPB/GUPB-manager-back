@@ -1,5 +1,8 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.TeamSerializer;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -39,6 +42,7 @@ public class Student {
         return id;
     }
 
+    @JsonSerialize(using = TeamSerializer.class)
     public Team getTeam() {
         return team;
     }
