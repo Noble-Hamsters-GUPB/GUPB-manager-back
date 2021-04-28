@@ -23,6 +23,9 @@ public class Round {
     @Column(name = Columns.NUMBER)
     private int number;
 
+    @Column(name = Columns.NUMBER_OF_RUNS)
+    private int numberOfRuns;
+
     @Column(name = Columns.DATE)
     private LocalDateTime date;
 
@@ -36,6 +39,10 @@ public class Round {
 
     public int getNumber() {
         return number;
+    }
+
+    public int getNumberOfRuns() {
+        return numberOfRuns;
     }
 
     public LocalDateTime getDate() {
@@ -54,6 +61,10 @@ public class Round {
         this.number = number;
     }
 
+    public void setNumberOfRuns(int numberOfRuns) {
+        this.numberOfRuns = numberOfRuns;
+    }
+
     public void setDate(LocalDateTime date) {
         this.date = date;
     }
@@ -66,6 +77,8 @@ public class Round {
 
         public static final String NUMBER = "number";
 
+        public static final String NUMBER_OF_RUNS = "number_of_runs";
+
         public static final String DATE = "date";
     }
 
@@ -76,12 +89,13 @@ public class Round {
         Round round = (Round) o;
         return id == round.id &&
                 number == round.number &&
+                numberOfRuns == round.numberOfRuns &&
                 Objects.equals(tournament, round.tournament) &&
                 Objects.equals(date, round.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, number, date);
+        return Objects.hash(id, tournament, number, numberOfRuns, date);
     }
 }
