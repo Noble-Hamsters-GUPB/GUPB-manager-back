@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 
 @Component
 public class PythonRunner implements Runnable {
@@ -99,12 +98,14 @@ public class PythonRunner implements Runnable {
                 BotStatus status = null;
                 for (String message : errorMessages) {
                     if (message.contains("Traceback (most recent call last):")) {
+                        team.setMessage(errorMessages.get(errorMessages.size() - 1));
                         status = BotStatus.INCOMPLETE;
                         break;
                     }
                 }
                 if (status == null) {
                     if (!outputMessages.isEmpty()) {
+                        team.setMessage("No errors.");
                         status = BotStatus.READY;
                     }
                 }

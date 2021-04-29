@@ -38,6 +38,9 @@ public class Team {
     @Enumerated(EnumType.STRING)
     private BotStatus botStatus;
 
+    @Column(name = Columns.MESSAGE)
+    private String message;
+
     public Team() {}
 
     public Team(String name, String githubLink) {
@@ -77,6 +80,10 @@ public class Team {
         return botStatus;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -109,6 +116,10 @@ public class Team {
         this.botStatus = botStatus;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -126,6 +137,8 @@ public class Team {
         public static final String BOT_NAME = "bot_name";
 
         public static final String BOT_STATUS = "bot_status";
+
+        public static final String MESSAGE = "message";
     }
 
     @Override
@@ -140,11 +153,12 @@ public class Team {
                 Objects.equals(packageName, team.packageName) &&
                 Objects.equals(controllerClassName, team.controllerClassName) &&
                 Objects.equals(botName, team.botName) &&
-                botStatus == team.botStatus;
+                botStatus == team.botStatus &&
+                Objects.equals(message, team.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, name, githubLink, packageName, controllerClassName, botName, botStatus);
+        return Objects.hash(id, tournament, name, githubLink, packageName, controllerClassName, botName, botStatus, message);
     }
 }
