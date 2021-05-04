@@ -34,29 +34,29 @@ public class MailSender {
         for (Team team : teams) {
             List<Student> students = studentRepository.findByTeam(team);
             for (Student student : students) {
-                sendEmailToStudentAfterRound(student);
+                sendEmailToStudentAfterRound(student, round);
             }
         }
-        sendEmailToCreatorAfterRound(round.getTournament());
+        sendEmailToCreatorAfterRound(round);
     }
 
-    private void sendEmailToStudentAfterRound(Student student) {
+    private void sendEmailToStudentAfterRound(Student student, Round round) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("nigerianprince@noscam.com");
+        message.setFrom("gupb-manager@noreply.com");
         message.setTo(student.getEmailAddress());
-        message.setSubject("NO SCAM!!!");
-        message.setText("It seems you are the only living relative of a nigerian prince.\n" +
-                "Send me 10 bitcoins and after an hour he will send you 20 bitcoins back.");
+        message.setSubject("Round complete");
+        message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
+                + "has completed. Go to the manager's website to check the results.");
         mailSender.send(message);
     }
 
-    private void sendEmailToCreatorAfterRound(Tournament tournament) {
+    private void sendEmailToCreatorAfterRound(Round round) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("nigerianprince@noscam.com");
-        message.setTo(tournament.getCreatorEmailAddress());
-        message.setSubject("NO SCAM!!!");
-        message.setText("It seems you are the only living relative of a nigerian prince.\n" +
-                "Send me 10 bitcoins and after an hour he will send you 20 bitcoins back.");
+        message.setFrom("gupb-manager@noreply.com");
+        message.setTo(round.getTournament().getCreatorEmailAddress());
+        message.setSubject("Round complete");
+        message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
+                + "has completed. Go to the manager's website to check the results.");
         mailSender.send(message);
     }
 }
