@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -43,7 +44,7 @@ public class MailSender {
         message.setTo(student.getEmailAddress());
         message.setSubject("Round complete");
         message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
-                + "has completed. Go to the manager's website to check the results.");
+                + " has completed. Go to the manager's website to check the results.");
         mailSender.send(message);
     }
 
@@ -53,7 +54,7 @@ public class MailSender {
         message.setTo(round.getTournament().getCreatorEmailAddress());
         message.setSubject("Round complete");
         message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
-                + "has completed. Go to the manager's website to check the results.");
+                + " has completed. Go to the manager's website to check the results.");
         mailSender.send(message);
     }
 
@@ -63,7 +64,7 @@ public class MailSender {
         message.setTo(requirement.getTournament().getCreatorEmailAddress());
         message.setSubject("New library request");
         message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
-                + "has appeared. Go to the manager's website to accept or reject it.");
+                + " has appeared. Go to the manager's website to accept or reject it.");
         mailSender.send(message);
     }
 
@@ -83,11 +84,28 @@ public class MailSender {
         message.setTo(student.getEmailAddress());
         message.setSubject("Library request resolved");
         message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
-                + "has changed status to " + requirement.getStatus() + ".");
+                + " has changed status to " + requirement.getStatus() + ". Go to the manager's website to see all libraries.");
         mailSender.send(message);
-        message.setSubject("New library request");
-        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
-                + "has appeared. Go to the manager's website to accept or reject it.");
+    }
+
+    public void sendEmailsToStudentsBeforeRoundBegins(Round round) {
+        List<Team> teams = teamRepository.findByTournament(round.getTournament());
+        for (Team team : teams) {
+            List<Student> students = studentRepository.findByTeam(team);
+            for (Student student : students) {
+                sendEmailToStudentBeforeRoundBegins(student, round);
+            }
+        }
+    }
+
+    private void sendEmailToStudentBeforeRoundBegins(Student student, Round round) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("gupb-manager@noreply.com");
+        message.setTo(student.getEmailAddress());
+        message.setSubject("New round begins soon");
+        message.setText("A new round in tournament " + round.getTournament().getName() + " will begin on "
+                + round.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                + " . Make sure that your bot is ready to fight!");
         mailSender.send(message);
     }
 }
