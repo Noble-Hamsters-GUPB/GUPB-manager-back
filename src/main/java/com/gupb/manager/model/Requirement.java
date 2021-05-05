@@ -25,6 +25,10 @@ public class Requirement {
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = Columns.TEAM_ID)
+    private Team requestedBy;
+
     public int getId() {
         return id;
     }
@@ -39,6 +43,10 @@ public class Requirement {
 
     public Tournament getTournament() {
         return tournament;
+    }
+
+    public Team getRequestedBy() {
+        return requestedBy;
     }
 
     public void setId(int id) {
@@ -57,6 +65,10 @@ public class Requirement {
         this.tournament = tournament;
     }
 
+    public void setRequestedBy(Team requestedBy) {
+        this.requestedBy = requestedBy;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -66,6 +78,8 @@ public class Requirement {
         public static final String STATUS = "status";
 
         public static final String TOURNAMENT_ID = "tournament_id";
+
+        public static final String TEAM_ID = "team_id";
     }
 
     @Override
@@ -76,11 +90,12 @@ public class Requirement {
         return id == that.id &&
                 Objects.equals(packageInfo, that.packageInfo) &&
                 status == that.status &&
-                Objects.equals(tournament, that.tournament);
+                Objects.equals(tournament, that.tournament) &&
+                Objects.equals(requestedBy, that.requestedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, packageInfo, status, tournament);
+        return Objects.hash(id, packageInfo, status, tournament, requestedBy);
     }
 }

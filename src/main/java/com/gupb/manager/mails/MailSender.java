@@ -1,9 +1,6 @@
 package com.gupb.manager.mails;
 
-import com.gupb.manager.model.Round;
-import com.gupb.manager.model.Student;
-import com.gupb.manager.model.Team;
-import com.gupb.manager.model.Tournament;
+import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -46,7 +44,7 @@ public class MailSender {
         message.setTo(student.getEmailAddress());
         message.setSubject("Round complete");
         message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
-                + "has completed. Go to the manager's website to check the results.");
+                + " has completed. Go to the manager's website to check the results.");
         mailSender.send(message);
     }
 
@@ -56,7 +54,58 @@ public class MailSender {
         message.setTo(round.getTournament().getCreatorEmailAddress());
         message.setSubject("Round complete");
         message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
-                + "has completed. Go to the manager's website to check the results.");
+                + " has completed. Go to the manager's website to check the results.");
+        mailSender.send(message);
+    }
+
+    public void sendEmailToCreatorAfterLibraryRequest(Requirement requirement) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("gupb-manager@noreply.com");
+        message.setTo(requirement.getTournament().getCreatorEmailAddress());
+        message.setSubject("New library request");
+        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
+                + " has appeared. Go to the manager's website to accept or reject it.");
+        mailSender.send(message);
+    }
+
+    public void sendEmailsToStudentsAfterRequestStatusChange(Requirement requirement) {
+        List<Team> teams = teamRepository.findByTournament(requirement.getTournament());
+        for (Team team : teams) {
+            List<Student> students = studentRepository.findByTeam(team);
+            for (Student student : students) {
+                sendEmailToStudentAfterRequestStatusChange(student, requirement);
+            }
+        }
+    }
+
+    private void sendEmailToStudentAfterRequestStatusChange(Student student, Requirement requirement) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("gupb-manager@noreply.com");
+        message.setTo(student.getEmailAddress());
+        message.setSubject("Library request resolved");
+        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
+                + " has changed status to " + requirement.getStatus() + ". Go to the manager's website to see all libraries.");
+        mailSender.send(message);
+    }
+
+    public void sendEmailsToStudentsBeforeRoundBegins(Round round) {
+        List<Team> teams = teamRepository.findByTournament(round.getTournament());
+        for (Team team : teams) {
+            List<Student> students = studentRepository.findByTeam(team);
+            for (Student student : students) {
+                sendEmailToStudentBeforeRoundBegins(student, round);
+            }
+        }
+    }
+
+    private void sendEmailToStudentBeforeRoundBegins(Student student, Round round) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("gupb-manager@noreply.com");
+        message.setTo(student.getEmailAddress());
+        message.setSubject("New round begins soon");
+        message.setText("A new round in tournament " + round.getTournament().getName() + " will begin on "
+                + round.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                + " . Make sure that your bot is ready to fight!");
         mailSender.send(message);
     }
 }
