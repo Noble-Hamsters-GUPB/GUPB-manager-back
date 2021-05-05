@@ -25,6 +25,9 @@ public class Tournament {
     @Column(name = Columns.CREATOR_EMAIL_ADDRESS)
     private String creatorEmailAddress;
 
+    @Column(name = Columns.INVITATION_CODE)
+    private String invitationCode;
+
     public Tournament() {}
 
     public Tournament(String name, AccessMode accessMode) {
@@ -48,6 +51,10 @@ public class Tournament {
         return creatorEmailAddress;
     }
 
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -64,6 +71,10 @@ public class Tournament {
         this.creatorEmailAddress = creatorEmailAddress;
     }
 
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -73,6 +84,8 @@ public class Tournament {
         public static final String ACCESS_MODE = "access_mode";
 
         public static final String CREATOR_EMAIL_ADDRESS = "creator_email_address";
+
+        public static final String INVITATION_CODE = "invitation_code";
     }
 
     @Override
@@ -83,11 +96,12 @@ public class Tournament {
         return id == that.id &&
                 Objects.equals(name, that.name) &&
                 accessMode == that.accessMode &&
-                Objects.equals(creatorEmailAddress, that.creatorEmailAddress);
+                Objects.equals(creatorEmailAddress, that.creatorEmailAddress) &&
+                Objects.equals(invitationCode, that.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, accessMode, creatorEmailAddress);
+        return Objects.hash(id, name, accessMode, creatorEmailAddress, invitationCode);
     }
 }

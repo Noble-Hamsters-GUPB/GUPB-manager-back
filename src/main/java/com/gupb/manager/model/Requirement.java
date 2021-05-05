@@ -21,6 +21,10 @@ public class Requirement {
     @Enumerated(EnumType.STRING)
     private RequirementStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = Columns.TOURNAMENT_ID)
+    private Tournament tournament;
+
     public int getId() {
         return id;
     }
@@ -31,6 +35,10 @@ public class Requirement {
 
     public RequirementStatus getStatus() {
         return status;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
     }
 
     public void setId(int id) {
@@ -45,6 +53,10 @@ public class Requirement {
         this.status = status;
     }
 
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -52,6 +64,8 @@ public class Requirement {
         public static final String PACKAGE_INFO = "package_info";
 
         public static final String STATUS = "status";
+
+        public static final String TOURNAMENT_ID = "tournament_id";
     }
 
     @Override
@@ -61,11 +75,12 @@ public class Requirement {
         Requirement that = (Requirement) o;
         return id == that.id &&
                 Objects.equals(packageInfo, that.packageInfo) &&
-                status == that.status;
+                status == that.status &&
+                Objects.equals(tournament, that.tournament);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, packageInfo, status);
+        return Objects.hash(id, packageInfo, status, tournament);
     }
 }
