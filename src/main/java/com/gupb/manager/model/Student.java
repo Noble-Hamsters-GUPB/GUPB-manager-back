@@ -17,6 +17,7 @@ public class Student {
     @Column(name = Columns.ID)
     private int id;
 
+    @Column(name = Columns.TEAM_ID)
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team;
 
@@ -27,15 +28,19 @@ public class Student {
     private String lastName;
 
     @Column(name = Columns.INDEX_NUMBER)
-    private int indexNumber;
+    private String indexNumber;
+
+    @Column(name = Columns.EMAIL_ADDRESS)
+    private String emailAddress;
 
     public Student() {}
 
-    public Student(Team team, String firstName, String lastName, int indexNumber) {
+    public Student(Team team, String firstName, String lastName, String indexNumber, String emailAddress) {
         this.team = team;
         this.firstName = firstName;
         this.lastName = lastName;
         this.indexNumber = indexNumber;
+        this.emailAddress = emailAddress;
     }
 
     public int getId() {
@@ -55,7 +60,11 @@ public class Student {
         return lastName;
     }
 
-    public int getIndexNumber() { return indexNumber; }
+    public String getIndexNumber() { return indexNumber; }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -73,7 +82,11 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public void setIndexNumber(int indexNumber) { this.indexNumber = indexNumber; }
+    public void setIndexNumber(String indexNumber) { this.indexNumber = indexNumber; }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 
     private static class Columns {
 
@@ -86,6 +99,8 @@ public class Student {
         public static final String LAST_NAME = "last_name";
 
         public static final String INDEX_NUMBER = "index_number";
+
+        public static final String EMAIL_ADDRESS = "email_address";
     }
 
     @Override
@@ -97,11 +112,12 @@ public class Student {
                 Objects.equals(team, student.team) &&
                 Objects.equals(firstName, student.firstName) &&
                 Objects.equals(lastName, student.lastName) &&
-                Objects.equals(indexNumber, student.indexNumber);
+                Objects.equals(indexNumber, student.indexNumber) &&
+                Objects.equals(emailAddress, student.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, team, firstName, lastName);
+        return Objects.hash(id, team, firstName, lastName, indexNumber, emailAddress);
     }
 }

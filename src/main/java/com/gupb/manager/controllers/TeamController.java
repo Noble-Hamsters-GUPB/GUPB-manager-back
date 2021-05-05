@@ -34,7 +34,8 @@ public class TeamController {
         JSONArray members =  teamData.getJSONArray("members");
         for(int i = 0; i < members.length(); i++){
             JSONObject member = members.getJSONObject(i);
-            Student student = new Student(team, member.getString("firstName"), member.getString("lastName"), member.getInt("indexNumber"));
+            Student student = new Student(team, member.getString("firstName"), member.getString("lastName"),
+                    member.getString("indexNumber"), member.getString("emailAddress"));
             studentRepository.save(student);
         }
         return teamRepository.save(team);
