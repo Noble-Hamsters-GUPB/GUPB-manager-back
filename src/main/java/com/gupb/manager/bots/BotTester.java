@@ -1,5 +1,6 @@
 package com.gupb.manager.bots;
 
+import com.gupb.manager.model.BotStatus;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.python.PythonRunner;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -24,11 +25,15 @@ public class BotTester {
     @Autowired
     private PythonRunner pythonRunner;
 
-    public void testTeamBot(Team team) throws IOException, GitAPIException {
-
-        gameProvider.provideTestRoundWithBot(pathRelativeToApp, dirName, team);
-        pythonRunner.setExecutionPath(pathRelativeToApp, dirName);
-        pythonRunner.setTeam(team);
-        pythonRunner.run();
+    public void testTeamBot(Team team) {
+        try {
+            gameProvider.provideTestRoundWithBot(pathRelativeToApp, dirName, team);
+            pythonRunner.setExecutionPath(pathRelativeToApp, dirName);
+            pythonRunner.setTeam(team);
+            pythonRunner.run();
+        } catch (GitAPIException | IOException e) {
+            team.setBotStatus(BotStatus.INCOMPLETE);
+            team.setMessage("The bot couldn't be tested properly.");
+        }
     }
 }
