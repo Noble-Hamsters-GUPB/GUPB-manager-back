@@ -8,10 +8,13 @@ import com.gupb.manager.repositories.TeamRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -32,6 +35,14 @@ public class TeamController {
         return teamRepository.findAll();
     }
 
+    @GetMapping("/team/{id}")
+    public @ResponseBody ResponseEntity<Team>
+    getTeamById(@PathVariable int id) {
+        return teamRepository.findById(id)
+                .map(team -> new ResponseEntity<>(team, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+    }
+
     @PostMapping("/teams")
     @Transactional
     public Team createTeam(@RequestBody String teamString) {
@@ -45,8 +56,8 @@ public class TeamController {
             studentRepository.save(student);
         }
 
-        botTester.testTeamBot(team);
         team.setLastUpdated(LocalDateTime.now());
+        botTester.testTeamBot(team);
         return teamRepository.save(team);
     }
 
@@ -54,8 +65,8 @@ public class TeamController {
     public void updateBot(@RequestBody int teamId) {
         var teamOptional = teamRepository.findById(teamId);
         teamOptional.ifPresent(team -> {
-            botTester.testTeamBot(team);
             team.setLastUpdated(LocalDateTime.now());
+            botTester.testTeamBot(team);
         });
     }
 }
