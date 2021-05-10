@@ -28,6 +28,15 @@ public class Round {
     @Column(name = Columns.DATE)
     private LocalDateTime date;
 
+    public Round() {}
+
+    public Round(Tournament tournament, int number, int numberOfRuns, LocalDateTime date) {
+        this.tournament = tournament;
+        this.number = number;
+        this.numberOfRuns = numberOfRuns;
+        this.date = date;
+    }
+
     public int getId() {
         return id;
     }
