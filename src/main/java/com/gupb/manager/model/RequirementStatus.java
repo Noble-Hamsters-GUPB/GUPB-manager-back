@@ -2,9 +2,10 @@ package com.gupb.manager.model;
 
 public enum RequirementStatus {
 
-    REQUESTED("Requested"),
-    APPROVED("Approved"),
-    REJECTED("Rejected");
+    VALID("Valid"),
+    PENDING("Pending"),
+    INVALID("Invalid"),
+    DECLINED("Declined");
 
     private final String name;
 

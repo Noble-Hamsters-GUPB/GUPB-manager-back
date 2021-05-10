@@ -1,5 +1,9 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.TeamSerializer;
+import com.gupb.manager.serializers.TournamentSerializer;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -17,7 +21,7 @@ public class Requirement {
     @Column(name = Columns.PACKAGE_INFO)
     private String packageInfo;
 
-    @Column(columnDefinition = "ENUM('REQUESTED', 'APPROVED', 'REJECTED')", name = Columns.STATUS)
+    @Column(columnDefinition = "ENUM('VALID', 'PENDING', 'INVALID', 'DECLINED')", name = Columns.STATUS)
     @Enumerated(EnumType.STRING)
     private RequirementStatus status;
 
@@ -41,10 +45,12 @@ public class Requirement {
         return status;
     }
 
+    @JsonSerialize(using = TournamentSerializer.class)
     public Tournament getTournament() {
         return tournament;
     }
 
+    @JsonSerialize(using = TeamSerializer.class)
     public Team getRequestedBy() {
         return requestedBy;
     }
