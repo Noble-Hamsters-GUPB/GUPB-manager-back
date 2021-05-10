@@ -1,11 +1,14 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.ResourceNotFound;
+import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.model.Requirement;
 import com.gupb.manager.repositories.RequirementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -34,6 +37,18 @@ public class RequirementController {
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
+
         return ResponseEntity.ok(updatedRequirement);
+    }
+
+    @DeleteMapping("/requirements/{id}")
+    public ResponseEntity<Map<String, Boolean>> deleteRequirement(@PathVariable Integer id) {
+        Requirement requirement = requirementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Requirement not exists with id: " + id));
+        
+        requirementRepository.delete(requirement);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return ResponseEntity.ok(response);
     }
 }
