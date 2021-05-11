@@ -16,7 +16,7 @@ public class GitUtilities {
         if(file.exists()) {
             FileUtils.deleteDirectory(file);
         }
-        Git.cloneRepository().setURI(source).setDirectory(new File(destination)).setBranch(branch).call();
+        Git.cloneRepository().setURI(source).setDirectory(new File(destination)).setBranch(branch).call().close();
     }
 
 
