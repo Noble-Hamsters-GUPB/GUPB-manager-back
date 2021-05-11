@@ -3,6 +3,7 @@ package com.gupb.manager.repositories;
 import com.gupb.manager.model.Requirement;
 import com.gupb.manager.model.Team;
 import org.springframework.data.jpa.repository.Query;
+import com.gupb.manager.model.Round;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

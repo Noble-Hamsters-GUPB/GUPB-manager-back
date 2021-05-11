@@ -1,5 +1,6 @@
 package com.gupb.manager.controllers;
 
+import com.gupb.manager.ResourceNotFound;
 import com.gupb.manager.bots.BotTester;
 import com.gupb.manager.model.Student;
 import com.gupb.manager.model.Team;
@@ -35,12 +36,12 @@ public class TeamController {
         return teamRepository.findAll();
     }
 
-    @GetMapping("/team/{id}")
+    @GetMapping("/teams/{id}")
     public @ResponseBody ResponseEntity<Team>
-    getTeamById(@PathVariable int id) {
+    getTeamById(@PathVariable Integer id) {
         return teamRepository.findById(id)
-                .map(team -> new ResponseEntity<>(team, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Team not found"));
     }
 
     @PostMapping("/teams")

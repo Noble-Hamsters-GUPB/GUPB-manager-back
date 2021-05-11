@@ -1,5 +1,7 @@
 package com.gupb.manager.scheduler;
 
+import com.gupb.manager.mails.MailSender;
+import com.gupb.manager.model.Round;
 import com.gupb.manager.python.PythonRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -23,6 +25,9 @@ public class SchedulerConfig {
 
     private Date taskDate;
 
+    @Autowired
+    private MailSender mailSender;
+
     @Async
     public void planRound() {
         ScheduledExecutorService localExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -33,5 +38,10 @@ public class SchedulerConfig {
     public void appointRound(LocalDateTime date) {
         this.taskDate = Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
         planRound();
+    }
+
+    public void appointMailsSending(Round round) {
+        Date date = Date.from(round.getDate().minusHours(24).atZone(ZoneId.systemDefault()).toInstant());
+        scheduler.schedule(() -> mailSender.sendEmailsToStudentsBeforeRoundBegins(round), date);
     }
 }

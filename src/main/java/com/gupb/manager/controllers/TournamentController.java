@@ -16,9 +16,6 @@ public class TournamentController {
     @Autowired
     private TournamentRepository tournamentRepository;
 
-    @Autowired
-    private SchedulerConfig schedulerConfig;
-
     @GetMapping("/tournaments")
     public Iterable<Tournament> getTournaments() {
         return tournamentRepository.findAll();
