@@ -33,6 +33,14 @@ public class Requirement {
     @JoinColumn(name = Columns.TEAM_ID)
     private Team requestedBy;
 
+    public Requirement() {}
+
+    public Requirement(String packageInfo, RequirementStatus status, Tournament tournament) {
+        this.packageInfo = packageInfo;
+        this.status = status;
+        this.tournament = tournament;
+    }
+
     public int getId() {
         return id;
     }
