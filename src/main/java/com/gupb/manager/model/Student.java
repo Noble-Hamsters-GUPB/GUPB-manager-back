@@ -17,7 +17,7 @@ public class Student {
     @Column(name = Columns.ID)
     private int id;
 
-    @Column(name = Columns.TEAM_ID)
+    @JoinColumn(name = Columns.TEAM_ID)
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team;
 

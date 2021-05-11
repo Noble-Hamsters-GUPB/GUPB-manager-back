@@ -1,6 +1,7 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -24,6 +25,14 @@ public class Requirement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
+
+    public Requirement() {}
+
+    public Requirement(String packageInfo, RequirementStatus status, Tournament tournament) {
+        this.packageInfo = packageInfo;
+        this.status = status;
+        this.tournament = tournament;
+    }
 
     public int getId() {
         return id;
