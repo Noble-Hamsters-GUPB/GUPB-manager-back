@@ -9,9 +9,8 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface TeamRepository extends CrudRepository<Team, Integer> {
-
     @Override
-    @Query("select t from Team t join fetch t.tournament tr")
+    @Query("select team from Team team join fetch team.tournament tournament")
     List<Team> findAll();
 
     List<Team> findByTournament(Tournament tournament);

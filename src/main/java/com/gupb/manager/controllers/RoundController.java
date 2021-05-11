@@ -1,6 +1,6 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.ResourceNotFound;
+import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.model.AccessMode;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.model.Tournament;
@@ -48,14 +48,15 @@ public class RoundController {
         JSONObject roundJSON = new JSONObject(roundData);
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(roundJSON.getInt("teamId"));
         int number = roundJSON.getInt("number");
-        int numberOfRounds = roundJSON.getInt("numberOfRounds");
-        LocalDateTime date = (LocalDateTime) roundJSON.get("date");
+        int numberOfRounds = roundJSON.getInt("numberOfRuns");
+        LocalDateTime date = LocalDateTime.parse((String) roundJSON.get("date"));
         Round round = tournamentOptional
                 .map(tournament -> new Round(tournament, number, numberOfRounds, date))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+
         roundRepository.save(round);
-        schedulerConfig.appointMailsSending(round);
-        schedulerConfig.appointRound(round.getDate());
+        //schedulerConfig.appointMailsSending(round); //todo: this.repository is null
+        //schedulerConfig.appointRound(round.getDate());
         return round;
     }
 }
