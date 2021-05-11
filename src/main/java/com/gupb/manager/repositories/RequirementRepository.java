@@ -15,5 +15,4 @@ public interface RequirementRepository extends CrudRepository<Requirement, Integ
     @Override
     @Query("select r from Requirement r join fetch r.tournament t")
     List<Requirement> findAll();
-    List<Requirement> findByTournament(Tournament tournament);
 }
