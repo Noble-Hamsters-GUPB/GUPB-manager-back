@@ -10,9 +10,10 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface RequirementRepository extends CrudRepository<Requirement, Integer> {
+  
     List<Requirement> findByTournament(Tournament tournament);
 
     @Override
-    @Query("select r from Requirement r join fetch r.tournament t")
+    @Query("select requirement from Requirement requirement join fetch requirement.tournament tournament join fetch requirement.requestedBy")
     List<Requirement> findAll();
 }
