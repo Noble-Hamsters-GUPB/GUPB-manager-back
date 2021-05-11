@@ -1,6 +1,6 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.ResourceNotFound;
+import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.bots.BotTester;
 import com.gupb.manager.model.Student;
 import com.gupb.manager.model.Team;
@@ -53,7 +53,7 @@ public class TeamController {
         for(int i = 0; i < members.length(); i++){
             JSONObject member = members.getJSONObject(i);
             Student student = new Student(team, member.getString("firstName"), member.getString("lastName"),
-                    member.getString("indexNumber"), member.getString("emailAddress"));
+                    member.getString("indexNumber"), null);//member.getString("emailAddress"));
             studentRepository.save(student);
         }
 
