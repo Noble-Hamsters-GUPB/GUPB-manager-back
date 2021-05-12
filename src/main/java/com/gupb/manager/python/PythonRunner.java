@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 @Component
 public class PythonRunner implements Runnable {
-    private static final OSType operatingSystem = OSType.getOSType();
+    private static final OSType operatingSystem = OSType.os;
     private static final ReentrantLock lock = new ReentrantLock();
     private final String appRootDirPath = System.getProperty("user.dir");
     private final String[] pathToPythonElements = {"src", "main", "java", "com", "gupb", "manager", "python"};

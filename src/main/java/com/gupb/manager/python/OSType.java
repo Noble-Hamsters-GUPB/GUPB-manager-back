@@ -7,12 +7,13 @@ public enum OSType {
     Other("other");
 
     public final String label;
+    public static final OSType os = getOSType();
 
     OSType(String label) {
         this.label = label;
     }
 
-    public static OSType getOSType() {
+    private static OSType getOSType() {
         String osName = System.getProperty("os.name").toLowerCase();
         if (osName.contains("win")){
             return Win;
