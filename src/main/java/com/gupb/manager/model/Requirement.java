@@ -35,10 +35,11 @@ public class Requirement {
 
     public Requirement() {}
 
-    public Requirement(String packageInfo, RequirementStatus status, Tournament tournament) {
+    public Requirement(String packageInfo, RequirementStatus status, Tournament tournament, Team requestedBy) {
         this.packageInfo = packageInfo;
         this.status = status;
         this.tournament = tournament;
+        this.requestedBy = requestedBy;
     }
 
     public int getId() {
