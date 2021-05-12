@@ -55,6 +55,14 @@ public class Team {
         this.githubLink = githubLink;
     }
 
+    public Team(String name, String githubLink, String packageName, String controllerClassName, String botName) {
+        this.name = name;
+        this.githubLink = githubLink;
+        this.packageName = packageName;
+        this.controllerClassName = controllerClassName;
+        this.botName = botName;
+    }
+
     public int getId() {
         return id;
     }

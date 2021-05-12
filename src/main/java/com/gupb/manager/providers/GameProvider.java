@@ -3,6 +3,8 @@ package com.gupb.manager.providers;
 import com.gupb.manager.git.GitUtilities;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.model.Team;
+import com.gupb.manager.python.PythonPackageManagementException;
+import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.repositories.TeamRepository;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +22,36 @@ public class GameProvider {
 
     private static final String controllerDirectoryName = "gupb" + File.separator + "controller" + File.separator;
 
+    private static final String virtualenvName = "GUPB-venv";
+
+    private static final String requirementsRelativePath = "requirements.txt";
+
     @Autowired
     private GitUtilities gitUtilities;
 
     @Autowired
+    private RequirementProvider requirementProvider;
+
+    @Autowired
     private TeamRepository teamRepository;
 
-    public void provideRound(String path, String dirName, Round round) throws GitAPIException, IOException {
+    @Autowired
+    private PythonPackageManager pythonPackageManager;
+
+
+    public void provideRound(String dirName, Round round) throws GitAPIException, IOException {
 
         List<Team> teamsInRound = teamRepository.findByTournament(round.getTournament());
 
-        gitUtilities.cloneRepository(source, path + File.separator + dirName, "master");
-        String destination = path + File.separator + dirName + File.separator + controllerDirectoryName;
+        gitUtilities.cloneRepository(source, dirName, "master");
+        String destination = dirName + File.separator + controllerDirectoryName;
 
         for (Team team : teamsInRound) {
-            gitUtilities.cloneRepository(team.getGithubLink(), destination, "master");
+            gitUtilities.cloneRepository(team.getGithubLink(), destination + File.separator + team.getPackageName(), "master");
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        File file = new File(path + File.separator + dirName + File.separator + configFile);
+        File file = new File(dirName + File.separator + configFile);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
         while ((line = br.readLine()) != null) {
@@ -48,7 +61,7 @@ public class GameProvider {
             else if (line.contains("random.RandomController(\"Alice\"),")) {
                 for (Team team : teamsInRound) {
                     stringBuilder.append("\t\t").append(team.getPackageName()).append(".")
-                            .append(team.getControllerClassName()).append("(").append(")\n");
+                            .append(team.getControllerClassName()).append("(").append("),\n");
                 }
                 for (int i = 0; i < 3; i++) {
                     br.readLine();
@@ -68,16 +81,27 @@ public class GameProvider {
         BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
         bw.write(stringBuilder.toString());
         bw.close();
+
+        requirementProvider.setRequirements(round.getTournament(), dirName + File.separator + requirementsRelativePath);
+
+        String virtualenvPath = dirName + File.separator + virtualenvName;
+        try {
+            pythonPackageManager.createVirtualEnvironment(dirName, virtualenvName);
+            pythonPackageManager.installPackagesFromRequirements(virtualenvPath, dirName + File.separator + requirementsRelativePath);
+        } catch (PythonPackageManagementException e) {
+            System.out.println(e.getLogs());
+            e.printStackTrace();
+        }
     }
 
-    public void provideTestRoundWithBot(String path, String dirName, Team team) throws GitAPIException, IOException {
+    public void provideTestRoundWithBot(String dirName, Team team) throws GitAPIException, IOException {
 
-        gitUtilities.cloneRepository(source, path + File.separator + dirName, "master");
-        String destination = path + File.separator + dirName + File.separator + controllerDirectoryName;
+        gitUtilities.cloneRepository(source, dirName, "master");
+        String destination = dirName + File.separator + controllerDirectoryName + File.separator + team.getPackageName();
         gitUtilities.cloneRepository(team.getGithubLink(), destination, "master");
 
         StringBuilder stringBuilder = new StringBuilder();
-        File file = new File(path + File.separator + dirName + File.separator + configFile);
+        File file = new File(dirName + File.separator + configFile);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
         while ((line = br.readLine()) != null) {
@@ -100,5 +124,16 @@ public class GameProvider {
         BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
         bw.write(stringBuilder.toString());
         bw.close();
+
+        requirementProvider.setRequirements(team.getTournament(), dirName + File.separator + requirementsRelativePath);
+
+        String virtualenvPath = dirName + File.separator + virtualenvName;
+        try {
+            pythonPackageManager.createVirtualEnvironment(dirName, virtualenvName);
+            pythonPackageManager.installPackagesFromRequirements(virtualenvPath, dirName + File.separator + requirementsRelativePath);
+        } catch (PythonPackageManagementException e) {
+            System.out.println(e.getLogs());
+            e.printStackTrace();
+        }
     }
 }
