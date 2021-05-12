@@ -1,115 +1,137 @@
 package com.gupb.manager.python;
 
-import com.gupb.manager.model.BotStatus;
-import com.gupb.manager.model.Team;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 
 @Component
-public class PythonRunner implements Runnable {
+public class PythonRunner {
     private static final OSType operatingSystem = OSType.os;
+
     private static final ReentrantLock lock = new ReentrantLock();
-    private final String appRootDirPath = System.getProperty("user.dir");
-    private final String[] pathToPythonElements = {"src", "main", "java", "com", "gupb", "manager", "python"};
-    private String runnerDirPathRelativeToApp = String.join(File.separator, pathToPythonElements) + File.separator;
-    private String runnerDirPath = String.join(File.separator, new String[]{appRootDirPath, runnerDirPathRelativeToApp});
-    private String gupbDirName = "GUPB-master";
-    private String[] argsWindowsArray = {runnerDirPath + "script.bat", "\"" + runnerDirPath + "\"", gupbDirName};
-    private String[] argsUnixArray = {"/usr/bin/env", "bash", runnerDirPath + "script.sh", "\"" + runnerDirPath + "\"", gupbDirName};
 
-    private List<String> errorMessages;
+    private final String appRootPath = System.getProperty("user.dir");
 
-    private List<String> outputMessages;
+    private String[] args = null;
 
-    private Team team;
-
-    public PythonRunner() {}
-
-    public void setExecutionPath(String path, String dirName) {
-        runnerDirPathRelativeToApp = path;
-        runnerDirPath = String.join(File.separator, new String[]{appRootDirPath, runnerDirPathRelativeToApp});
-        gupbDirName = dirName;
-        argsWindowsArray = new String[]{runnerDirPath + "script.bat", "\"" + runnerDirPath + "\"", gupbDirName};
-        argsUnixArray = new String[]{"/usr/bin/env", "bash", runnerDirPath + "script.sh", "\"" + runnerDirPath + "\"", gupbDirName};
+    private void setExecutionPath(String pathFromAppRootToGUPBDir, String virtualenvName) {
+        String pathToGUPBDir = appRootPath + File.separator + pathFromAppRootToGUPBDir;
+        String pathToVirtualenv = pathToGUPBDir + File.separator + virtualenvName;
+        setArgs(pathToGUPBDir, pathToVirtualenv, virtualenvName);
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    private void setArgs(String pathToGUPBDir, String pathToVirtualenv, String virtualenvName) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        switch (operatingSystem) {
+            case Win:
+                stringBuilder.append("cd ")
+                        .append(pathToGUPBDir)
+                        .append(" && py -m virtualenv ")
+                        .append(virtualenvName)
+                        .append(" && ")
+                        .append(pathToVirtualenv)
+                        .append(File.separator)
+                        .append("Scripts")
+                        .append(File.separator)
+                        .append("activate.bat && py -m gupb && ")
+                        .append(pathToVirtualenv)
+                        .append(File.separator)
+                        .append("Scripts")
+                        .append(File.separator)
+                        .append("deactivate.bat");
+                args = new String[] {
+                        "cmd",
+                        "/c",
+                        stringBuilder.toString()
+                };
+                break;
+            case Linux: case MacOS:
+                stringBuilder.append("cd ")
+                        .append(pathToGUPBDir)
+                        .append(" && python3 -m virtualenv ")
+                        .append(virtualenvName)
+                        .append(" && . ")
+                        .append(pathToVirtualenv)
+                        .append(File.separator)
+                        .append("bin")
+                        .append(File.separator)
+                        .append("activate && python3 -m gupb && deactivate");
+                args = new String[] {
+                        "/usr/bin/env",
+                        "sh",
+                        "-c",
+                        stringBuilder.toString()
+                };
+                break;
+        }
     }
 
-    private void execProcess(String[] args) throws IOException, InterruptedException {
-        errorMessages = new ArrayList<>();
-        outputMessages = new ArrayList<>();
-
+    private int execProcess() throws IOException, InterruptedException {
+        System.out.println(String.join(" ", args));
         Process process = Runtime.getRuntime().exec(args);
+
         BufferedReader brError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        Thread errorStreamThread = new Thread(() -> processStreamOutput(brError,
+                (line) -> {
+                    System.out.println(line);
+                }));
+
         BufferedReader brOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        while ( (line = brError.readLine()) != null) {
-            errorMessages.add(line);
-            System.out.println(line);
-        }
-        while ( (line = brOutput.readLine()) != null) {
-            outputMessages.add(line);
-            System.out.println(line);
-        }
+        Thread inputStreamThread = new Thread(() -> processStreamOutput(brOutput,
+                (line) -> {
+                    System.out.println(line);
+                }));
+
+        errorStreamThread.start();
+        inputStreamThread.start();
+
+        errorStreamThread.join();
+        inputStreamThread.join();
 
         process.waitFor();
+        System.out.println("Exit val: " + process.exitValue());
+        int exitStatus = process.exitValue();
         process.destroy();
 
+        return exitStatus;
     }
 
-    @Override
-    public void run() {
+    public int run(String pathFromAppRootToGUPBDir, String virtualenvName) {
+        int exitStatus = 1;
         try {
             lock.lock();
-            switch (operatingSystem) {
-                case Win:
-                    execProcess(argsWindowsArray);
-                    break;
-                case Linux: case MacOS:
-                    execProcess(argsUnixArray);
-                    break;
-                case Other:
-                    throw new UnsupportedOS("Unsupported Operating System");
-            }
+            setExecutionPath(pathFromAppRootToGUPBDir, virtualenvName);
+            exitStatus = execProcess();
         }
-        catch (InterruptedException | IOException | UnsupportedOS e) {
+        catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
         finally {
             lock.unlock();
         }
-        processOutput();
+
+        return exitStatus;
     }
 
-    private void processOutput() {
-        switch (gupbDirName) {
-            case "GUPB-master":
-                break;
-            case "GUPB-test":
-                BotStatus status = null;
-                for (String message : errorMessages) {
-                    if (message.contains("Traceback (most recent call last):")) {
-                        status = BotStatus.INCOMPLETE;
-                        break;
-                    }
-                }
-                if (status == null) {
-                    if (!outputMessages.isEmpty()) {
-                        status = BotStatus.READY;
-                    }
-                }
-                team.setBotStatus(status);
-                break;
+    private interface Callback {
+        void call(String line);
+    }
+
+    private void processStreamOutput(BufferedReader br, Callback callback) {
+        String line = null;
+        while (true) {
+            try {
+                line = br.readLine();
+            } catch (IOException ignored) { }
+
+            if (line == null) break;
+
+            callback.call(line);
         }
     }
 }
