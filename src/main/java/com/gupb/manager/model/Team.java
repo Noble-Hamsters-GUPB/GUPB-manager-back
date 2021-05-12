@@ -1,6 +1,7 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,6 +38,15 @@ public class Team {
     @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.BOT_STATUS)
     @Enumerated(EnumType.STRING)
     private BotStatus botStatus;
+
+    @Column(name = Columns.LAST_UPDATED)
+    private LocalDateTime lastUpdated;
+
+    @Column(name = Columns.MESSAGE)
+    private String message;
+
+    @Column(name = Columns.TOTAL_POINTS)
+    private int totalPoints;
 
     public Team() {}
 
@@ -77,6 +87,18 @@ public class Team {
         return botStatus;
     }
 
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public int getTotalPoints() {
+        return totalPoints;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -109,6 +131,18 @@ public class Team {
         this.botStatus = botStatus;
     }
 
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setTotalPoints(int totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -126,6 +160,12 @@ public class Team {
         public static final String BOT_NAME = "bot_name";
 
         public static final String BOT_STATUS = "bot_status";
+
+        public static final String LAST_UPDATED = "last_updated";
+
+        public static final String MESSAGE = "message";
+
+        public static final String TOTAL_POINTS = "total_points";
     }
 
     @Override
@@ -134,17 +174,20 @@ public class Team {
         if (o == null || getClass() != o.getClass()) return false;
         Team team = (Team) o;
         return id == team.id &&
+                totalPoints == team.totalPoints &&
                 Objects.equals(tournament, team.tournament) &&
                 Objects.equals(name, team.name) &&
                 Objects.equals(githubLink, team.githubLink) &&
                 Objects.equals(packageName, team.packageName) &&
                 Objects.equals(controllerClassName, team.controllerClassName) &&
                 Objects.equals(botName, team.botName) &&
-                botStatus == team.botStatus;
+                botStatus == team.botStatus &&
+                Objects.equals(lastUpdated, team.lastUpdated) &&
+                Objects.equals(message, team.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, name, githubLink, packageName, controllerClassName, botName, botStatus);
+        return Objects.hash(id, tournament, name, githubLink, packageName, controllerClassName, botName, botStatus, lastUpdated, message, totalPoints);
     }
 }

@@ -29,6 +29,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:5.11.+'
+	implementation 'org.springframework:spring-context-support:5.2.8.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-mail:2.3.4.RELEASE'
 	runtimeOnly 'mysql:mysql-connector-java'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

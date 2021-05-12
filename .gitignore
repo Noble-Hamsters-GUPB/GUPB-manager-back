@@ -45,3 +45,4 @@ out/
 
 ### Eclipse ###
 .settings/
+/src/test/java/com/gupb/manager/requirements/

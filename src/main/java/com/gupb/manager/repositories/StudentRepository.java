@@ -11,4 +11,6 @@ public interface StudentRepository extends CrudRepository<Student, Integer> {
     @Override
     @Query("select s from Student s join fetch s.team t")
     List<Student> findAll();
+
+    List<Student> findByTeam(Team team);
 }

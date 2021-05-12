@@ -22,6 +22,12 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private AccessMode accessMode;
 
+    @Column(name = Columns.CREATOR_EMAIL_ADDRESS)
+    private String creatorEmailAddress;
+
+    @Column(name = Columns.INVITATION_CODE)
+    private String invitationCode;
+
     public Tournament() {}
 
     public Tournament(String name, AccessMode accessMode) {
@@ -41,6 +47,14 @@ public class Tournament {
         return accessMode;
     }
 
+    public String getCreatorEmailAddress() {
+        return creatorEmailAddress;
+    }
+
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -53,6 +67,14 @@ public class Tournament {
         this.accessMode = accessMode;
     }
 
+    public void setCreatorEmailAddress(String creatorEmailAddress) {
+        this.creatorEmailAddress = creatorEmailAddress;
+    }
+
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -60,6 +82,10 @@ public class Tournament {
         public static final String NAME = "name";
 
         public static final String ACCESS_MODE = "access_mode";
+
+        public static final String CREATOR_EMAIL_ADDRESS = "creator_email_address";
+
+        public static final String INVITATION_CODE = "invitation_code";
     }
 
     @Override
@@ -69,11 +95,13 @@ public class Tournament {
         Tournament that = (Tournament) o;
         return id == that.id &&
                 Objects.equals(name, that.name) &&
-                accessMode == that.accessMode;
+                accessMode == that.accessMode &&
+                Objects.equals(creatorEmailAddress, that.creatorEmailAddress) &&
+                Objects.equals(invitationCode, that.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, accessMode);
+        return Objects.hash(id, name, accessMode, creatorEmailAddress, invitationCode);
     }
 }

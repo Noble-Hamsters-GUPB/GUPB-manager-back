@@ -1,5 +1,6 @@
 package com.gupb.manager.scheduler;
 
+import com.gupb.manager.mails.MailSender;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.providers.GameProvider;
 import com.gupb.manager.python.PythonPackageManagementException;
@@ -14,11 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Component
 public class SchedulerConfig {
@@ -39,6 +38,9 @@ public class SchedulerConfig {
 
     @Autowired
     private PythonRunner pythonRunner;
+
+    @Autowired
+    private MailSender mailSender;
 
     @Async
     public void planRound(Date taskDate, Round round) {
@@ -63,5 +65,10 @@ public class SchedulerConfig {
         }
 
         pythonRunner.run(pathToGUPBDir, virtualenvName);
+    }
+
+    public void appointMailsSending(Round round) {
+        Date date = Date.from(round.getDate().minusHours(24).atZone(ZoneId.systemDefault()).toInstant());
+        scheduler.schedule(() -> mailSender.sendEmailsToStudentsBeforeRoundBegins(round), date);
     }
 }

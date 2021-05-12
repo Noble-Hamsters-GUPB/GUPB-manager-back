@@ -24,19 +24,31 @@ public class BotTester {
     @Autowired
     private PythonRunner pythonRunner;
 
-    public void testTeamBot(Team team) throws IOException, GitAPIException {
+    public void testTeamBot(Team team) {
+        int exitStatus;
         String teamDirName = dirName + team.getName().replaceAll("[^a-zA-Z0-9]", "");
-        gameProvider.provideTestRoundWithBot(teamDirName, team);
-        int exitStatus = pythonRunner.run(teamDirName, virtualenvName);
+
+        try {
+            gameProvider.provideTestRoundWithBot(teamDirName, team);
+            exitStatus = pythonRunner.run(teamDirName, virtualenvName);
+        } catch (IOException | GitAPIException e) {
+            exitStatus = 1;
+        }
         if (exitStatus != 0) {
             team.setBotStatus(BotStatus.INCOMPLETE);
+            team.setMessage("The bot couldn't be tested properly.");
         }
         else {
             team.setBotStatus(BotStatus.READY);
+            team.setMessage("No errors.");
         }
-        File file = new File(teamDirName);
-        if (file.exists()) {
-            FileUtils.deleteDirectory(file);
+        try {
+            File file = new File(teamDirName);
+            if (file.exists()) {
+                FileUtils.deleteDirectory(file);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
