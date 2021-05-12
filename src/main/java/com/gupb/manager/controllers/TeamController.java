@@ -6,6 +6,7 @@ import com.gupb.manager.model.Student;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TeamRepository;
+import com.gupb.manager.repositories.TournamentRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class TeamController {
     private StudentRepository studentRepository;
 
     @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
     private BotTester botTester;
 
     @GetMapping("/teams")
@@ -48,18 +52,22 @@ public class TeamController {
     @Transactional
     public Team createTeam(@RequestBody String teamString) {
         JSONObject teamData = new JSONObject(teamString);
-        Team team = new Team(teamData.getString("name"), teamData.getString("githubLink"));
+        Team team = new Team(teamData.getString("name"), teamData.getString("githubLink"),
+                teamData.getString("packageName"), teamData.getString("className"),
+                teamData.getString("botName"));
+        team.setTournament(tournamentRepository.findById(1).get()); // TODO: should be changes later
+        teamRepository.save(team);
         JSONArray members =  teamData.getJSONArray("members");
         for(int i = 0; i < members.length(); i++){
             JSONObject member = members.getJSONObject(i);
             Student student = new Student(team, member.getString("firstName"), member.getString("lastName"),
-                    member.getString("indexNumber"), null);//member.getString("emailAddress"));
+                    member.getString("indexNumber"), member.getString("emailAddress"));
             studentRepository.save(student);
         }
 
         team.setLastUpdated(LocalDateTime.now());
         botTester.testTeamBot(team);
-        return teamRepository.save(team);
+        return team;
     }
 
     @PostMapping("/update-bot")

@@ -30,6 +30,9 @@ public class GameProvider {
     private GitUtilities gitUtilities;
 
     @Autowired
+    private RequirementProvider requirementProvider;
+
+    @Autowired
     private TeamRepository teamRepository;
 
     @Autowired
@@ -58,7 +61,7 @@ public class GameProvider {
             else if (line.contains("random.RandomController(\"Alice\"),")) {
                 for (Team team : teamsInRound) {
                     stringBuilder.append("\t\t").append(team.getPackageName()).append(".")
-                            .append(team.getControllerClassName()).append("(").append(")\n");
+                            .append(team.getControllerClassName()).append("(").append("),\n");
                 }
                 for (int i = 0; i < 3; i++) {
                     br.readLine();
@@ -78,6 +81,8 @@ public class GameProvider {
         BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
         bw.write(stringBuilder.toString());
         bw.close();
+
+        requirementProvider.setRequirements(round.getTournament(), dirName + File.separator + requirementsRelativePath);
 
         String virtualenvPath = dirName + File.separator + virtualenvName;
         try {
@@ -119,6 +124,8 @@ public class GameProvider {
         BufferedWriter bw = new BufferedWriter(new FileWriter(file, false));
         bw.write(stringBuilder.toString());
         bw.close();
+
+        requirementProvider.setRequirements(team.getTournament(), dirName + File.separator + requirementsRelativePath);
 
         String virtualenvPath = dirName + File.separator + virtualenvName;
         try {

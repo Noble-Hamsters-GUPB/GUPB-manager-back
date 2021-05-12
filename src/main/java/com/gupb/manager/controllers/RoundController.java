@@ -55,8 +55,8 @@ public class RoundController {
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         roundRepository.save(round);
-        //schedulerConfig.appointMailsSending(round); //todo: this.repository is null
-        //schedulerConfig.appointRound(round.getDate());
+        schedulerConfig.appointMailsSending(round);
+        schedulerConfig.appointRound(round);
         return round;
     }
 }

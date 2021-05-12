@@ -1,6 +1,6 @@
 package com.gupb.manager.scheduler;
 
-import com.gupb.manager.mails.MailSender;
+import com.gupb.manager.mails.MailService;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.providers.GameProvider;
 import com.gupb.manager.python.PythonPackageManagementException;
@@ -40,7 +40,7 @@ public class SchedulerConfig {
     private PythonRunner pythonRunner;
 
     @Autowired
-    private MailSender mailSender;
+    private MailService mailSender;
 
     @Async
     public void planRound(Date taskDate, Round round) {
