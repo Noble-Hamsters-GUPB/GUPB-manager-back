@@ -54,25 +54,15 @@ public class TeamController {
         JSONObject teamData = new JSONObject(teamString);
         Team team = tournamentRepository.findById(teamData.getInt("tournment_id"))
                 .map(tournament -> new Team(tournament, teamData.getString("name"),
-                        teamData.getString("githubLink"), teamData.getString("className")))
+                        teamData.getString("githubLink"), teamData.getString("className"),
+                        teamData.getString("invitationCode")))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         teamRepository.save(team);
         Set<Student> teamStudents = new HashSet<>();
-        JSONArray newMembers =  teamData.getJSONArray("newMembers");
-        for(int i = 0; i < newMembers.length(); i++) {
-            JSONObject member = newMembers.getJSONObject(i);
-            Set<Team> studentTeams = new HashSet<>();
-            studentTeams.add(team);
-            Student student = new Student(studentTeams, member.getString("firstName"),
-                    member.getString("lastName"), member.getString("indexNumber"),
-                    member.getString("emailAddress"));
-            teamStudents.add(student);
-            studentRepository.save(student);
-        }
-        JSONArray existingMembers =  teamData.getJSONArray("existingMembers");
-        for(int i = 0; i < existingMembers.length(); i++) {
-            JSONObject member = existingMembers.getJSONObject(i);
+        JSONArray members =  teamData.getJSONArray("members");
+        for(int i = 0; i < members.length(); i++) {
+            JSONObject member = members.getJSONObject(i);
             Student student = studentRepository.findById(member.getInt("id"))
                     .orElseThrow(() -> new ResourceNotFound("Student not found"));
             student.getTeams().add(team);

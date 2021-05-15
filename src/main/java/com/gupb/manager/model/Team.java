@@ -45,6 +45,9 @@ public class Team {
     @Column(name = Columns.TOTAL_POINTS)
     private int totalPoints;
 
+    @Column(name = Columns.INVITATION_CODE)
+    private String invitationCode;
+
     public Team() {}
 
     public Team(String name, String githubLink) {
@@ -52,11 +55,12 @@ public class Team {
         this.githubLink = githubLink;
     }
 
-    public Team(Tournament tournament, String name, String githubLink, String mainClassName) {
+    public Team(Tournament tournament, String name, String githubLink, String mainClassName, String invitationCode) {
         this.tournament = tournament;
         this.name = name;
         this.githubLink = githubLink;
         this.mainClassName = mainClassName;
+        this.invitationCode = invitationCode;
     }
 
     public String getSafeName() {
@@ -103,6 +107,10 @@ public class Team {
         return totalPoints;
     }
 
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -143,6 +151,10 @@ public class Team {
         this.totalPoints = totalPoints;
     }
 
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -153,11 +165,7 @@ public class Team {
 
         public static final String GITHUB_LINK = "github_link";
 
-        public static final String PACKAGE_NAME = "package_name";
-
         public static final String MAIN_CLASS_NAME = "controller_class_name";
-
-        public static final String PLAYER_NAME = "bot_name";
 
         public static final String PLAYER_STATUS = "bot_status";
 
@@ -166,6 +174,8 @@ public class Team {
         public static final String MESSAGE = "message";
 
         public static final String TOTAL_POINTS = "total_points";
+
+        public static final String INVITATION_CODE = "invitation_code";
     }
 
     @Override
@@ -182,11 +192,12 @@ public class Team {
                 Objects.equals(mainClassName, team.mainClassName) &&
                 playerStatus == team.playerStatus &&
                 Objects.equals(lastUpdated, team.lastUpdated) &&
-                Objects.equals(message, team.message);
+                Objects.equals(message, team.message) &&
+                Objects.equals(invitationCode, team.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, students, name, githubLink, mainClassName, playerStatus, lastUpdated, message, totalPoints);
+        return Objects.hash(id, tournament, students, name, githubLink, mainClassName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
     }
 }
