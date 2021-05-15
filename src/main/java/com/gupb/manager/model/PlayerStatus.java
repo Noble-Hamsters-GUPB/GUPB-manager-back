@@ -1,6 +1,6 @@
 package com.gupb.manager.model;
 
-public enum BotStatus {
+public enum PlayerStatus {
 
     IN_TESTING("In testing"),
     INCOMPLETE("Incomplete"),
@@ -8,7 +8,7 @@ public enum BotStatus {
 
     private final String name;
 
-    BotStatus(String name) {
+    PlayerStatus(String name) {
         this.name = name;
     }
 

@@ -14,14 +14,14 @@ public class Requirement {
     public static final String TABLE_NAME = "requirement";
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
     private int id;
 
     @Column(name = Columns.PACKAGE_INFO)
     private String packageInfo;
 
-    @Column(columnDefinition = "ENUM('VALID', 'PENDING', 'INVALID', 'DECLINED')", name = Columns.STATUS)
+    @Column(columnDefinition = "ENUM('VALID', 'PENDING', 'DECLINED')", name = Columns.STATUS)
     @Enumerated(EnumType.STRING)
     private RequirementStatus status;
 

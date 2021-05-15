@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -52,19 +52,33 @@ public class TeamController {
     @Transactional
     public Team createTeam(@RequestBody String teamString) {
         JSONObject teamData = new JSONObject(teamString);
-        Team team = new Team(teamData.getString("name"), teamData.getString("githubLink"),
-                teamData.getString("packageName"), teamData.getString("className"),
-                teamData.getString("botName"));
-        team.setTournament(tournamentRepository.findById(1).get()); // TODO: should be changes later
+        Team team = tournamentRepository.findById(teamData.getInt("tournment_id"))
+                .map(tournament -> new Team(tournament, teamData.getString("name"),
+                        teamData.getString("githubLink"), teamData.getString("className")))
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+
         teamRepository.save(team);
-        JSONArray members =  teamData.getJSONArray("members");
-        for(int i = 0; i < members.length(); i++){
-            JSONObject member = members.getJSONObject(i);
-            Student student = new Student(team, member.getString("firstName"), member.getString("lastName"),
-                    member.getString("indexNumber"), member.getString("emailAddress"));
+        Set<Student> teamStudents = new HashSet<>();
+        JSONArray newMembers =  teamData.getJSONArray("newMembers");
+        for(int i = 0; i < newMembers.length(); i++) {
+            JSONObject member = newMembers.getJSONObject(i);
+            Set<Team> studentTeams = new HashSet<>();
+            studentTeams.add(team);
+            Student student = new Student(studentTeams, member.getString("firstName"),
+                    member.getString("lastName"), member.getString("indexNumber"),
+                    member.getString("emailAddress"));
+            teamStudents.add(student);
             studentRepository.save(student);
         }
-
+        JSONArray existingMembers =  teamData.getJSONArray("existingMembers");
+        for(int i = 0; i < existingMembers.length(); i++) {
+            JSONObject member = existingMembers.getJSONObject(i);
+            Student student = studentRepository.findById(member.getInt("id"))
+                    .orElseThrow(() -> new ResourceNotFound("Student not found"));
+            student.getTeams().add(team);
+            teamStudents.add(student);
+        }
+        team.setStudents(teamStudents);
         team.setLastUpdated(LocalDateTime.now());
         botTester.testTeamBot(team);
         return team;

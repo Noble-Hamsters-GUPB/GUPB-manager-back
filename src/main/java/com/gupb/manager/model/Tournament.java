@@ -1,7 +1,6 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -11,14 +10,14 @@ public class Tournament {
     public static final String TABLE_NAME = "tournament";
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
     private int id;
 
     @Column(name = Columns.NAME)
     private String name;
 
-    @Column(columnDefinition = "ENUM('OPEN', 'RESTRICTED', 'INVITE_ONLY')", name = Columns.ACCESS_MODE)
+    @Column(columnDefinition = "ENUM('OPEN', 'INVITE_ONLY')", name = Columns.ACCESS_MODE)
     @Enumerated(EnumType.STRING)
     private AccessMode accessMode;
 
