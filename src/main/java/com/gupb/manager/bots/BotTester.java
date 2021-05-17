@@ -1,6 +1,6 @@
 package com.gupb.manager.bots;
 
-import com.gupb.manager.model.BotStatus;
+import com.gupb.manager.model.PlayerStatus;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.python.PythonRunner;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +26,7 @@ public class BotTester {
 
     public void testTeamBot(Team team) {
         int exitStatus;
-        String teamDirName = dirName + team.getName().replaceAll("[^a-zA-Z0-9]", "");
+        String teamDirName = dirName + team.getSafeName();
 
         try {
             gameProvider.provideTestRoundWithBot(teamDirName, team);
@@ -35,11 +35,11 @@ public class BotTester {
             exitStatus = 1;
         }
         if (exitStatus != 0) {
-            team.setBotStatus(BotStatus.INCOMPLETE);
+            team.setPlayerStatus(PlayerStatus.INCOMPLETE);
             team.setMessage("The bot couldn't be tested properly.");
         }
         else {
-            team.setBotStatus(BotStatus.READY);
+            team.setPlayerStatus(PlayerStatus.READY);
             team.setMessage("No errors.");
         }
         try {

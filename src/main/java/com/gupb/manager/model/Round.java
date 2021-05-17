@@ -11,7 +11,7 @@ public class Round {
     public static final String TABLE_NAME = "round";
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
     private int id;
 
@@ -27,6 +27,9 @@ public class Round {
 
     @Column(name = Columns.DATE)
     private LocalDateTime date;
+
+    @Column(name = Columns.PATH_TO_LOGS)
+    private String pathToLogs;
 
     public Round() {}
 
@@ -57,6 +60,10 @@ public class Round {
         return date;
     }
 
+    public String getPathToLogs() {
+        return pathToLogs;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -77,6 +84,10 @@ public class Round {
         this.date = date;
     }
 
+    public void setPathToLogs(String pathToLogs) {
+        this.pathToLogs = pathToLogs;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -88,6 +99,8 @@ public class Round {
         public static final String NUMBER_OF_RUNS = "number_of_runs";
 
         public static final String DATE = "date";
+
+        public static final String PATH_TO_LOGS = "path_to_logs";
     }
 
     @Override
@@ -99,11 +112,12 @@ public class Round {
                 number == round.number &&
                 numberOfRuns == round.numberOfRuns &&
                 Objects.equals(tournament, round.tournament) &&
-                Objects.equals(date, round.date);
+                Objects.equals(date, round.date) &&
+                Objects.equals(pathToLogs, round.pathToLogs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, number, numberOfRuns, date);
+        return Objects.hash(id, tournament, number, numberOfRuns, date, pathToLogs);
     }
 }

@@ -4,7 +4,6 @@ public enum RequirementStatus {
 
     VALID("Valid"),
     PENDING("Pending"),
-    INVALID("Invalid"),
     DECLINED("Declined");
 
     private final String name;
