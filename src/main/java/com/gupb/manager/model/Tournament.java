@@ -30,9 +30,11 @@ public class Tournament {
 
     public Tournament() {}
 
-    public Tournament(String name, AccessMode accessMode) {
+    public Tournament(String name, AccessMode accessMode, Admin creator, String invitationCode) {
         this.name = name;
         this.accessMode = accessMode;
+        this.creator = creator;
+        this.invitationCode = invitationCode;
     }
 
     public int getId() {

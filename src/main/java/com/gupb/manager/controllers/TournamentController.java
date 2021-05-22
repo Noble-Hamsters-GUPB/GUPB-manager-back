@@ -1,9 +1,7 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.model.AccessMode;
-import com.gupb.manager.model.ResourceNotFound;
-import com.gupb.manager.model.Team;
-import com.gupb.manager.model.Tournament;
+import com.gupb.manager.model.*;
+import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.TournamentRepository;
 import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
@@ -18,6 +16,9 @@ public class TournamentController {
 
     @Autowired
     private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @GetMapping("/tournaments")
     public Iterable<Tournament> getTournaments() {
@@ -34,10 +35,12 @@ public class TournamentController {
     }
     
     @PostMapping("/tournaments")
-    public Tournament createTournament(@RequestBody String tournamentData) {
-        JSONObject tournamentJSON = new JSONObject(tournamentData);
-        String name = tournamentJSON.getString("name");
-        AccessMode accessMode = tournamentJSON.optEnum(AccessMode.class, "accessMode");
-        return tournamentRepository.save(new Tournament(name, accessMode));
+    public Tournament createTournament(@RequestBody String tournamentString) {
+        JSONObject tournamentData = new JSONObject(tournamentString);
+        Admin creator = adminRepository.findById(tournamentData.getInt("creator"))
+                .orElseThrow(() -> new ResourceNotFound("Admin not found"));
+        return tournamentRepository.save(new Tournament(tournamentData.getString("name"),
+                tournamentData.optEnum(AccessMode.class, "accessMode"), creator,
+                tournamentData.getString("invitationCode")));
     }
 }
