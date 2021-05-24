@@ -74,6 +74,20 @@ public class TeamController {
         return team;
     }
 
+    @PostMapping("/teams/{id}")
+    @Transactional
+    public Team joinTeam(@PathVariable Integer id, @RequestBody Integer studentId) {
+        return teamRepository.findById(id)
+                .map(team -> studentRepository.findById(studentId)
+                        .map(student -> {
+                            team.getStudents().add(student);
+                            student.getTeams().add(team);
+                            return team;
+                        })
+                        .orElseThrow(() -> new ResourceNotFound("Student not found")))
+                .orElseThrow(() -> new ResourceNotFound("Team not found"));
+    }
+
     @PostMapping("/update-bot")
     public void updateBot(@RequestBody int teamId) {
         var teamOptional = teamRepository.findById(teamId);

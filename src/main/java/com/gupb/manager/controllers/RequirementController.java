@@ -1,5 +1,6 @@
 package com.gupb.manager.controllers;
 
+import com.gupb.manager.mails.MailService;
 import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.RequirementRepository;
 import com.gupb.manager.repositories.TeamRepository;
@@ -30,6 +31,9 @@ public class RequirementController {
     private TeamRepository teamRepository;
 
     @Autowired
+    private MailService mailService;
+  
+    @Autowired
     private SimpMessagingTemplate template;
 
     @GetMapping("/requirements")
@@ -52,6 +56,7 @@ public class RequirementController {
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
+        mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return ResponseEntity.ok(updatedRequirement);
     }
@@ -71,6 +76,7 @@ public class RequirementController {
                     .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         requirementRepository.save(requirement);
+        mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return requirement;
     }
