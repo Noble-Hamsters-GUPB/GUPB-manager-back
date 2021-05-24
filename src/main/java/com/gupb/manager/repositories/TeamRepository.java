@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamRepository extends CrudRepository<Team, Integer> {
     @Override
@@ -14,4 +15,8 @@ public interface TeamRepository extends CrudRepository<Team, Integer> {
     List<Team> findAll();
 
     List<Team> findByTournament(Tournament tournament);
+
+    Optional<Team> findByName(String name);
+
+    Optional<Team> findByPlayerName(String playerName);
 }

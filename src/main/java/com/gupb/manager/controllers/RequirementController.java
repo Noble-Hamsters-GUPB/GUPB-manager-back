@@ -62,11 +62,18 @@ public class RequirementController {
     }
 
     @PostMapping("/requirements")
-    public Requirement createRequirement(@RequestBody String requirementData) {
+    public Requirement createRequirement(@RequestBody String requirementData) throws ResourceConflict {
         JSONObject requirementJSON = new JSONObject(requirementData);
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(requirementJSON.getInt("tournamentId"));
         Optional<Team> teamOptional = teamRepository.findById(requirementJSON.getInt("teamId"));
         String packageInfo = requirementJSON.getString("packageInfo");
+
+        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
+
+        if(requirementOptional.isPresent()) {
+            throw new ResourceConflict("This requirement already exists");
+        }
+
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
             Requirement requirement = tournamentOptional
@@ -75,7 +82,7 @@ public class RequirementController {
                             .orElseThrow(() -> new ResourceNotFound("Team not found")))
                     .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
-        requirementRepository.save(requirement);
+        requirement = requirementRepository.save(requirement);
         mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return requirement;

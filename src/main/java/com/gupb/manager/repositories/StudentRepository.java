@@ -12,4 +12,6 @@ public interface StudentRepository extends CrudRepository<Student, Integer> {
     List<Student> findByTeams_id(Team team);
 
     Optional<Student> findByEmailAddress(String emailAddress);
+
+    Optional<Student> findByIndexNumber(String indexNumber);
 }
