@@ -8,9 +8,12 @@ import com.gupb.manager.repositories.TournamentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +32,9 @@ public class RequirementController {
 
     @Autowired
     private MailService mailService;
+  
+    @Autowired
+    private SimpMessagingTemplate template;
 
     @GetMapping("/requirements")
     public Iterable<Requirement> getRequirements() { return requirementRepository.findAll(); }
@@ -51,6 +57,7 @@ public class RequirementController {
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
         mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
+        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return ResponseEntity.ok(updatedRequirement);
     }
 
@@ -70,6 +77,7 @@ public class RequirementController {
 
         requirementRepository.save(requirement);
         mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
+        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return requirement;
     }
 
@@ -81,6 +89,12 @@ public class RequirementController {
         requirementRepository.delete(requirement);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
+        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return ResponseEntity.ok(response);
+    }
+
+    @SendTo("/topic/requirements")
+    public List<Requirement> broadcastMessage(@Payload List<Requirement> requirements) {
+        return requirements;
     }
 }
