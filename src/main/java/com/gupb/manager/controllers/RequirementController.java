@@ -56,17 +56,25 @@ public class RequirementController {
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
-        mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
+
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
         return ResponseEntity.ok(updatedRequirement);
     }
 
     @PostMapping("/requirements")
-    public Requirement createRequirement(@RequestBody String requirementData) {
+    public Requirement createRequirement(@RequestBody String requirementData) throws ResourceConflict {
         JSONObject requirementJSON = new JSONObject(requirementData);
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(requirementJSON.getInt("tournamentId"));
         Optional<Team> teamOptional = teamRepository.findById(requirementJSON.getInt("teamId"));
         String packageInfo = requirementJSON.getString("packageInfo");
+
+        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
+
+        if(requirementOptional.isPresent()) {
+            throw new ResourceConflict("This requirement already exists");
+        }
+
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
             Requirement requirement = tournamentOptional
@@ -75,9 +83,9 @@ public class RequirementController {
                             .orElseThrow(() -> new ResourceNotFound("Team not found")))
                     .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
-        requirementRepository.save(requirement);
-        mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
+        requirement = requirementRepository.save(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         return requirement;
     }
 

@@ -1,5 +1,12 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.StudentsSerializer;
+import com.gupb.manager.serializers.TeamsSerializer;
+import com.gupb.manager.serializers.TournamentSerializer;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -32,6 +39,9 @@ public class Team {
     @Column(name = Columns.MAIN_CLASS_NAME)
     private String mainClassName;
 
+    @Column(name = Columns.PLAYER_NAME)
+    private String playerName;
+
     @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.PLAYER_STATUS)
     @Enumerated(EnumType.STRING)
     private PlayerStatus playerStatus;
@@ -55,9 +65,10 @@ public class Team {
         this.githubLink = githubLink;
     }
 
-    public Team(Tournament tournament, String name, String githubLink, String mainClassName, String invitationCode) {
+    public Team(Tournament tournament, String name, String playerName, String githubLink, String mainClassName, String invitationCode) {
         this.tournament = tournament;
         this.name = name;
+        this.playerName = playerName;
         this.githubLink = githubLink;
         this.mainClassName = mainClassName;
         this.invitationCode = invitationCode;
@@ -71,10 +82,12 @@ public class Team {
         return id;
     }
 
+    @JsonSerialize(using= TournamentSerializer.class)
     public Tournament getTournament() {
         return tournament;
     }
 
+    @JsonSerialize(using = StudentsSerializer.class)
     public Set<Student> getStudents() {
         return students;
     }
@@ -89,6 +102,10 @@ public class Team {
 
     public String getMainClassName() {
         return mainClassName;
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 
     public PlayerStatus getPlayerStatus() {
@@ -135,6 +152,10 @@ public class Team {
         this.mainClassName = controllerClassName;
     }
 
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
     public void setPlayerStatus(PlayerStatus playerStatus) {
         this.playerStatus = playerStatus;
     }
@@ -167,6 +188,8 @@ public class Team {
 
         public static final String MAIN_CLASS_NAME = "controller_class_name";
 
+        public static final String PLAYER_NAME = "player_name";
+
         public static final String PLAYER_STATUS = "bot_status";
 
         public static final String LAST_UPDATED = "last_updated";
@@ -186,10 +209,10 @@ public class Team {
         return id == team.id &&
                 totalPoints == team.totalPoints &&
                 Objects.equals(tournament, team.tournament) &&
-                Objects.equals(students, team.students) &&
                 Objects.equals(name, team.name) &&
                 Objects.equals(githubLink, team.githubLink) &&
                 Objects.equals(mainClassName, team.mainClassName) &&
+                Objects.equals(playerName, team.playerName) &&
                 playerStatus == team.playerStatus &&
                 Objects.equals(lastUpdated, team.lastUpdated) &&
                 Objects.equals(message, team.message) &&
@@ -198,6 +221,6 @@ public class Team {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, students, name, githubLink, mainClassName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
+        return Objects.hash(id, tournament, name, githubLink, mainClassName, playerName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
     }
 }

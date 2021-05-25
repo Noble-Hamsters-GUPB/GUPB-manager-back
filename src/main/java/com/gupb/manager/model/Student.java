@@ -2,7 +2,9 @@ package com.gupb.manager.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gupb.manager.security.SecurityConfig;
-import com.gupb.manager.serializers.TeamSerializer;
+import com.gupb.manager.serializers.TeamsSerializer;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -56,7 +58,7 @@ public class Student {
         return id;
     }
 
-    @JsonSerialize(using = TeamSerializer.class)
+    @JsonSerialize(using = TeamsSerializer.class)
     public Set<Team> getTeams() {
         return teams;
     }
@@ -132,7 +134,6 @@ public class Student {
         if (o == null || getClass() != o.getClass()) return false;
         Student student = (Student) o;
         return id == student.id &&
-                Objects.equals(teams, student.teams) &&
                 Objects.equals(firstName, student.firstName) &&
                 Objects.equals(lastName, student.lastName) &&
                 Objects.equals(indexNumber, student.indexNumber) &&
@@ -142,6 +143,6 @@ public class Student {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, teams, firstName, lastName, indexNumber, emailAddress, password);
+        return Objects.hash(id, firstName, lastName, indexNumber, emailAddress, password);
     }
 }

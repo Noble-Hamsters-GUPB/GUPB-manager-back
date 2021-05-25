@@ -1,5 +1,8 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.AdminSerializer;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -49,6 +52,7 @@ public class Tournament {
         return accessMode;
     }
 
+    @JsonSerialize(using = AdminSerializer.class)
     public Admin getCreator() {
         return creator;
     }
