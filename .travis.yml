@@ -5,7 +5,7 @@ jdk: openjdk11
 services:
   - mysql
 before_install:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS gupb;'
+  - mysql -e "GRANT CREATE USER ON *.* TO 'root'@'localhost' IDENTIFIED BY '12345'; FLUSH PRIVILEGES; CREATE DATABASE IF NOT EXISTS gupb;"
 branches:
   only:
     - main
