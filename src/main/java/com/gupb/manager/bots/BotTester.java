@@ -1,6 +1,6 @@
 package com.gupb.manager.bots;
 
-import com.gupb.manager.model.BotStatus;
+import com.gupb.manager.model.PlayerStatus;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.python.PythonExitStatus;
 import com.gupb.manager.python.PythonRunner;
@@ -31,14 +31,14 @@ public class BotTester {
     private TeamRepository teamRepository;
 
     public void testTeamBot(Team team) {
-        String teamDirName = dirName + team.getName().replaceAll("[^a-zA-Z0-9]", "");
+        String teamDirName = dirName + team.getSafeName();
         Thread thread = new Thread(() -> {
-            team.setBotStatus(BotStatus.IN_TESTING);
+            team.setPlayerStatus(PlayerStatus.IN_TESTING);
             teamRepository.save(team);
             try {
                 gameProvider.provideTestRoundWithBot(teamDirName, team);
             } catch (IOException | GitAPIException e) {
-                team.setBotStatus(BotStatus.INCOMPLETE);
+                team.setPlayerStatus(PlayerStatus.INCOMPLETE);
                 team.setMessage("The bot couldn't be tested properly.");
                 return;
             }
@@ -46,7 +46,7 @@ public class BotTester {
             PythonExitStatus pythonExitStatus = pythonRunner.run(teamDirName, virtualenvName, RunType.TestRun, null);
 
             if (pythonExitStatus.exitedWithError()) {
-                team.setBotStatus(BotStatus.INCOMPLETE);
+                team.setPlayerStatus(PlayerStatus.INCOMPLETE);
                 String message = pythonExitStatus.getExitMessage();
                 if (message.length() > Team.MESSAGE_MAX_LENGTH) {
                     message = message.substring(message.length() - Team.MESSAGE_MAX_LENGTH);
@@ -54,7 +54,7 @@ public class BotTester {
                 team.setMessage(message);
             }
             else {
-                team.setBotStatus(BotStatus.READY);
+                team.setPlayerStatus(PlayerStatus.READY);
                 team.setMessage("No errors.");
             }
             teamRepository.save(team);

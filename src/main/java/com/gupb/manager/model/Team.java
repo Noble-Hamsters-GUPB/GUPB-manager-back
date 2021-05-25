@@ -2,8 +2,8 @@ package com.gupb.manager.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = Team.TABLE_NAME)
@@ -12,7 +12,7 @@ public class Team {
     public static final String TABLE_NAME = "team";
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
     private int id;
 
@@ -20,24 +20,24 @@ public class Team {
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
 
+    @ManyToMany(mappedBy = "teams")
+    private Set<Student> students;
+
     @Column(name = Columns.NAME)
     private String name;
 
     @Column(name = Columns.GITHUB_LINK)
     private String githubLink;
 
-    @Column(name = Columns.PACKAGE_NAME)
-    private String packageName;
-
-    @Column(name = Columns.CONTROLLER_CLASS_NAME)
-    private String controllerClassName;
+    @Column(name = Columns.MAIN_CLASS_NAME)
+    private String mainClassName;
 
     @Column(name = Columns.BOT_NAME, unique = true)
     private String botName;
 
-    @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.BOT_STATUS)
+    @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.PLAYER_STATUS)
     @Enumerated(EnumType.STRING)
-    private BotStatus botStatus;
+    private PlayerStatus playerStatus;
 
     @Column(name = Columns.LAST_UPDATED)
     private LocalDateTime lastUpdated;
@@ -50,6 +50,9 @@ public class Team {
     @Column(name = Columns.TOTAL_POINTS)
     private int totalPoints;
 
+    @Column(name = Columns.INVITATION_CODE)
+    private String invitationCode;
+
     public Team() {}
 
     public Team(String name, String githubLink) {
@@ -57,12 +60,16 @@ public class Team {
         this.githubLink = githubLink;
     }
 
-    public Team(String name, String githubLink, String packageName, String controllerClassName, String botName) {
+    public Team(Tournament tournament, String name, String githubLink, String mainClassName, String invitationCode) {
+        this.tournament = tournament;
         this.name = name;
         this.githubLink = githubLink;
-        this.packageName = packageName;
-        this.controllerClassName = controllerClassName;
-        this.botName = botName;
+        this.mainClassName = mainClassName;
+        this.invitationCode = invitationCode;
+    }
+
+    public String getSafeName() {
+        return name.replaceAll("[^a-zA-Z0-9]", "");
     }
 
     public int getId() {
@@ -73,6 +80,10 @@ public class Team {
         return tournament;
     }
 
+    public Set<Student> getStudents() {
+        return students;
+    }
+
     public String getName() {
         return name;
     }
@@ -81,20 +92,16 @@ public class Team {
         return githubLink;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public String getControllerClassName() {
-        return controllerClassName;
+    public String getMainClassName() {
+        return mainClassName;
     }
 
     public String getBotName() {
         return botName;
     }
 
-    public BotStatus getBotStatus() {
-        return botStatus;
+    public PlayerStatus getPlayerStatus() {
+        return playerStatus;
     }
 
     public LocalDateTime getLastUpdated() {
@@ -109,12 +116,20 @@ public class Team {
         return totalPoints;
     }
 
+    public String getInvitationCode() {
+        return invitationCode;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
 
     public void setTournament(Tournament tournament) {
         this.tournament = tournament;
+    }
+
+    public void setStudents(Set<Student> students) {
+        this.students = students;
     }
 
     public void setName(String name) {
@@ -125,20 +140,16 @@ public class Team {
         this.githubLink = githubLink;
     }
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setControllerClassName(String controllerClassName) {
-        this.controllerClassName = controllerClassName;
+    public void setMainClassName(String controllerClassName) {
+        this.mainClassName = controllerClassName;
     }
 
     public void setBotName(String botName) {
         this.botName = botName;
     }
 
-    public void setBotStatus(BotStatus botStatus) {
-        this.botStatus = botStatus;
+    public void setPlayerStatus(PlayerStatus playerStatus) {
+        this.playerStatus = playerStatus;
     }
 
     public void setLastUpdated(LocalDateTime lastUpdated) {
@@ -153,6 +164,10 @@ public class Team {
         this.totalPoints = totalPoints;
     }
 
+    public void setInvitationCode(String invitationCode) {
+        this.invitationCode = invitationCode;
+    }
+
     public static class Columns {
 
         public static final String ID = "id";
@@ -163,19 +178,19 @@ public class Team {
 
         public static final String GITHUB_LINK = "github_link";
 
-        public static final String PACKAGE_NAME = "package_name";
-
-        public static final String CONTROLLER_CLASS_NAME = "controller_class_name";
+        public static final String MAIN_CLASS_NAME = "controller_class_name";
 
         public static final String BOT_NAME = "bot_name";
 
-        public static final String BOT_STATUS = "bot_status";
+        public static final String PLAYER_STATUS = "bot_status";
 
         public static final String LAST_UPDATED = "last_updated";
 
         public static final String MESSAGE = "message";
 
         public static final String TOTAL_POINTS = "total_points";
+
+        public static final String INVITATION_CODE = "invitation_code";
     }
 
     @Override
@@ -186,18 +201,18 @@ public class Team {
         return id == team.id &&
                 totalPoints == team.totalPoints &&
                 Objects.equals(tournament, team.tournament) &&
+                Objects.equals(students, team.students) &&
                 Objects.equals(name, team.name) &&
                 Objects.equals(githubLink, team.githubLink) &&
-                Objects.equals(packageName, team.packageName) &&
-                Objects.equals(controllerClassName, team.controllerClassName) &&
-                Objects.equals(botName, team.botName) &&
-                botStatus == team.botStatus &&
+                Objects.equals(mainClassName, team.mainClassName) &&
+                playerStatus == team.playerStatus &&
                 Objects.equals(lastUpdated, team.lastUpdated) &&
-                Objects.equals(message, team.message);
+                Objects.equals(message, team.message) &&
+                Objects.equals(invitationCode, team.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, name, githubLink, packageName, controllerClassName, botName, botStatus, lastUpdated, message, totalPoints);
+        return Objects.hash(id, tournament, students, name, githubLink, mainClassName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
     }
 }

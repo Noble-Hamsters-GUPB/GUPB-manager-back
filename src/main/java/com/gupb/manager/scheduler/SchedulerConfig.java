@@ -87,9 +87,9 @@ public class SchedulerConfig {
                 File movedFile = new File(pathToNewLogDir + File.separator + fileName);
                 FileUtils.moveFile(file, movedFile);
             }
-            round.setLogsPath(pathToNewLogDir);
+            round.setPathToLogs(pathToNewLogDir);
         } catch (Exception ignored) {
-            round.setLogsPath(null);
+            round.setPathToLogs(null);
         } finally {
             roundRepository.save(round);
         }

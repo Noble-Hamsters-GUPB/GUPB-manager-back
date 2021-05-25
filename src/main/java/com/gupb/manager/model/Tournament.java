@@ -1,7 +1,6 @@
 package com.gupb.manager.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -11,28 +10,31 @@ public class Tournament {
     public static final String TABLE_NAME = "tournament";
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = Columns.ID)
     private int id;
 
     @Column(name = Columns.NAME)
     private String name;
 
-    @Column(columnDefinition = "ENUM('OPEN', 'RESTRICTED', 'INVITE_ONLY')", name = Columns.ACCESS_MODE)
+    @Column(columnDefinition = "ENUM('OPEN', 'INVITE_ONLY')", name = Columns.ACCESS_MODE)
     @Enumerated(EnumType.STRING)
     private AccessMode accessMode;
 
-    @Column(name = Columns.CREATOR_EMAIL_ADDRESS)
-    private String creatorEmailAddress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = Columns.CREATOR_ID)
+    private Admin creator;
 
     @Column(name = Columns.INVITATION_CODE)
     private String invitationCode;
 
     public Tournament() {}
 
-    public Tournament(String name, AccessMode accessMode) {
+    public Tournament(String name, AccessMode accessMode, Admin creator, String invitationCode) {
         this.name = name;
         this.accessMode = accessMode;
+        this.creator = creator;
+        this.invitationCode = invitationCode;
     }
 
     public int getId() {
@@ -47,8 +49,8 @@ public class Tournament {
         return accessMode;
     }
 
-    public String getCreatorEmailAddress() {
-        return creatorEmailAddress;
+    public Admin getCreator() {
+        return creator;
     }
 
     public String getInvitationCode() {
@@ -67,8 +69,8 @@ public class Tournament {
         this.accessMode = accessMode;
     }
 
-    public void setCreatorEmailAddress(String creatorEmailAddress) {
-        this.creatorEmailAddress = creatorEmailAddress;
+    public void setCreator(Admin creator) {
+        this.creator = creator;
     }
 
     public void setInvitationCode(String invitationCode) {
@@ -83,7 +85,7 @@ public class Tournament {
 
         public static final String ACCESS_MODE = "access_mode";
 
-        public static final String CREATOR_EMAIL_ADDRESS = "creator_email_address";
+        public static final String CREATOR_ID = "creator_id";
 
         public static final String INVITATION_CODE = "invitation_code";
     }
@@ -96,12 +98,12 @@ public class Tournament {
         return id == that.id &&
                 Objects.equals(name, that.name) &&
                 accessMode == that.accessMode &&
-                Objects.equals(creatorEmailAddress, that.creatorEmailAddress) &&
+                Objects.equals(creator, that.creator) &&
                 Objects.equals(invitationCode, that.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, accessMode, creatorEmailAddress, invitationCode);
+        return Objects.hash(id, name, accessMode, creator, invitationCode);
     }
 }

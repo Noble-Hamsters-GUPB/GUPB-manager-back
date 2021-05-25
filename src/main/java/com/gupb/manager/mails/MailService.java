@@ -29,7 +29,7 @@ public class MailService {
     public void sendEmailsAfterRound(Round round) {
         List<Team> teams = teamRepository.findByTournament(round.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeam(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentAfterRound(student, round);
             }
@@ -50,7 +50,7 @@ public class MailService {
     private void sendEmailToCreatorAfterRound(Round round) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("gupb.manager@gmail.com");
-        message.setTo(round.getTournament().getCreatorEmailAddress());
+        message.setTo(round.getTournament().getCreator().getEmailAddress());
         message.setSubject("Round complete");
         message.setText("The round number " + round.getNumber() + " of tournament " + round.getTournament().getName()
                 + " has completed. Go to the manager's website to check the results.");
@@ -60,7 +60,7 @@ public class MailService {
     public void sendEmailToCreatorAfterLibraryRequest(Requirement requirement) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("gupb.manager@gmail.com");
-        message.setTo(requirement.getTournament().getCreatorEmailAddress());
+        message.setTo(requirement.getTournament().getCreator().getEmailAddress());
         message.setSubject("New library request");
         message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
                 + " has appeared. Go to the manager's website to accept or reject it.");
@@ -70,7 +70,7 @@ public class MailService {
     public void sendEmailsToStudentsAfterRequestStatusChange(Requirement requirement) {
         List<Team> teams = teamRepository.findByTournament(requirement.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeam(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentAfterRequestStatusChange(student, requirement);
             }
@@ -90,7 +90,7 @@ public class MailService {
     public void sendEmailsToStudentsBeforeRoundBegins(Round round) {
         List<Team> teams = teamRepository.findByTournament(round.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeam(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentBeforeRoundBegins(student, round);
             }
@@ -104,7 +104,7 @@ public class MailService {
         message.setSubject("New round begins soon");
         message.setText("A new round in tournament " + round.getTournament().getName() + " will begin on "
                 + round.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                + " . Make sure that your bot is ready to fight!");
+                + ". Make sure that your bot is ready to fight!");
         if(student.getEmailAddress() != null)
             javaMailSender.send(message);
     }

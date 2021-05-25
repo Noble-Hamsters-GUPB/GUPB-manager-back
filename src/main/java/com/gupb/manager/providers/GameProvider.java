@@ -1,7 +1,7 @@
 package com.gupb.manager.providers;
 
 import com.gupb.manager.git.GitUtilities;
-import com.gupb.manager.model.BotStatus;
+import com.gupb.manager.model.PlayerStatus;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.python.PythonPackageManagementException;
@@ -48,7 +48,7 @@ public class GameProvider {
         String destination = dirName + File.separator + controllerDirectoryName;
 
         for (Team team : teamsInRound) {
-            gitUtilities.cloneRepository(team.getGithubLink(), destination + File.separator + team.getPackageName(), "master");
+            gitUtilities.cloneRepository(team.getGithubLink(), destination + File.separator + team.getSafeName(), "master");
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -61,9 +61,9 @@ public class GameProvider {
             }
             else if (line.contains("random.RandomController(\"Alice\"),")) {
                 for (Team team : teamsInRound) {
-                    if (team.getBotStatus() == BotStatus.READY) {
-                        stringBuilder.append("\t\t").append(team.getPackageName()).append(".")
-                                .append(team.getControllerClassName()).append("(").append("),\n");
+                    if (team.getPlayerStatus() == PlayerStatus.READY) {
+                        stringBuilder.append("\t\t").append(team.getSafeName()).append(".")
+                                .append(team.getMainClassName()).append("(").append("),\n");
                     }
                 }
                 for (int i = 0; i < 3; i++) {
@@ -74,8 +74,8 @@ public class GameProvider {
                 stringBuilder.append(line).append("\n");
                 if (line.contains("from gupb.controller import random")) {
                     for (Team team : teamsInRound) {
-                        if (team.getBotStatus() == BotStatus.READY) {
-                            stringBuilder.append("from gupb.controller import ").append(team.getPackageName()).append("\n");
+                        if (team.getPlayerStatus() == PlayerStatus.READY) {
+                            stringBuilder.append("from gupb.controller import ").append(team.getSafeName()).append("\n");
                         }
                     }
                 }
@@ -102,7 +102,7 @@ public class GameProvider {
     public void provideTestRoundWithBot(String dirName, Team team) throws GitAPIException, IOException {
 
         gitUtilities.cloneRepository(source, dirName, "master");
-        String destination = dirName + File.separator + controllerDirectoryName + File.separator + team.getPackageName();
+        String destination = dirName + File.separator + controllerDirectoryName + File.separator + team.getSafeName();
         gitUtilities.cloneRepository(team.getGithubLink(), destination, "master");
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -116,11 +116,11 @@ public class GameProvider {
             else {
                 stringBuilder.append(line).append("\n");
                 if (line.contains("from gupb.controller import random")) {
-                    stringBuilder.append("from gupb.controller import ").append(team.getPackageName()).append("\n");
+                    stringBuilder.append("from gupb.controller import ").append(team.getSafeName()).append("\n");
                 }
                 else if (line.contains("random.RandomController(\"Darius\"),")) {
-                    stringBuilder.append("\t\t").append(team.getPackageName()).append(".")
-                            .append(team.getControllerClassName()).append("(").append(")\n");
+                    stringBuilder.append("\t\t").append(team.getSafeName()).append(".")
+                            .append(team.getMainClassName()).append("(").append(")\n");
                 }
             }
         }
