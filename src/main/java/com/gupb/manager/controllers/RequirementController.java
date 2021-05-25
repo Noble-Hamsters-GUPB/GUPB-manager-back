@@ -56,8 +56,9 @@ public class RequirementController {
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
-        mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
+
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
         return ResponseEntity.ok(updatedRequirement);
     }
 
@@ -83,8 +84,8 @@ public class RequirementController {
                     .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         requirement = requirementRepository.save(requirement);
-        mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         return requirement;
     }
 

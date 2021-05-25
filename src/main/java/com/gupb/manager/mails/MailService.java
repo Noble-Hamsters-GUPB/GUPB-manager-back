@@ -29,7 +29,7 @@ public class MailService {
     public void sendEmailsAfterRound(Round round) {
         List<Team> teams = teamRepository.findByTournament(round.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeams_id(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentAfterRound(student, round);
             }
@@ -70,7 +70,7 @@ public class MailService {
     public void sendEmailsToStudentsAfterRequestStatusChange(Requirement requirement) {
         List<Team> teams = teamRepository.findByTournament(requirement.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeams_id(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentAfterRequestStatusChange(student, requirement);
             }
@@ -90,7 +90,7 @@ public class MailService {
     public void sendEmailsToStudentsBeforeRoundBegins(Round round) {
         List<Team> teams = teamRepository.findByTournament(round.getTournament());
         for (Team team : teams) {
-            List<Student> students = studentRepository.findByTeams_id(team);
+            List<Student> students = studentRepository.findByTeams_id(team.getId());
             for (Student student : students) {
                 sendEmailToStudentBeforeRoundBegins(student, round);
             }

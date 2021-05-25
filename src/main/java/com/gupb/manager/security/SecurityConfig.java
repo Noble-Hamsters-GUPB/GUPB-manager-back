@@ -83,6 +83,7 @@ protected void configure(HttpSecurity http) throws Exception {
             .authorizeRequests().antMatchers("/api/v1/auth/**").permitAll()
             .antMatchers("/api/v1/test/**").permitAll()
             .antMatchers("/api/v1/students").permitAll()
+            .antMatchers("/ws-message/**").permitAll()
             .anyRequest().authenticated();
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
