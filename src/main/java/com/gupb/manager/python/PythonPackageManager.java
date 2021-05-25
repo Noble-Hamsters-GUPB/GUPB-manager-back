@@ -114,6 +114,7 @@ public class PythonPackageManager {
                     sb.append(line).append("\n");
                     System.out.println(line);
                 }
+                process.destroy();
                 throw new PythonPackageManagementException(exceptionMessage, exitStatus, sb.toString());
             }
             process.destroy();
