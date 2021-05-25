@@ -1,6 +1,7 @@
 ### GUPB git dirs ###
 GUPB-master/
 GUPB-test*/
+saved_logs/
 
 ### runner logs ###
 setup_logs_dir/
