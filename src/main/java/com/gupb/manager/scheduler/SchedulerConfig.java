@@ -6,6 +6,7 @@ import com.gupb.manager.providers.GameProvider;
 import com.gupb.manager.python.PythonPackageManagementException;
 import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.python.PythonRunner;
+import com.gupb.manager.python.RunType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -64,7 +65,7 @@ public class SchedulerConfig {
             e.printStackTrace();
         }
 
-        pythonRunner.run(pathToGUPBDir, virtualenvName);
+        pythonRunner.run(pathToGUPBDir, virtualenvName, RunType.NormalRun, round);
     }
 
     public void appointMailsSending(Round round) {

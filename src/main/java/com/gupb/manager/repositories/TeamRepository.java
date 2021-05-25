@@ -14,4 +14,6 @@ public interface TeamRepository extends CrudRepository<Team, Integer> {
     List<Team> findAll();
 
     List<Team> findByTournament(Tournament tournament);
+
+    List<Team> findByBotName(String name);
 }
