@@ -37,7 +37,7 @@ public class RoundController {
     @GetMapping("/rounds/{id}")
     public @ResponseBody
     ResponseEntity<Round>
-    getTeamById(@PathVariable Integer id) {
+    getRoundById(@PathVariable Integer id) {
         return roundRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Round not found"));
@@ -46,7 +46,7 @@ public class RoundController {
     @PostMapping("/rounds")
     public Round createRound(@RequestBody String roundData) {
         JSONObject roundJSON = new JSONObject(roundData);
-        Optional<Tournament> tournamentOptional = tournamentRepository.findById(roundJSON.getInt("teamId"));
+        Optional<Tournament> tournamentOptional = tournamentRepository.findById(roundJSON.getInt("tournamentId"));
         int number = roundJSON.getInt("number");
         int numberOfRounds = roundJSON.getInt("numberOfRuns");
         LocalDateTime date = LocalDateTime.parse((String) roundJSON.get("date"));

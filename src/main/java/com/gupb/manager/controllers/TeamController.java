@@ -1,5 +1,6 @@
 package com.gupb.manager.controllers;
 
+import com.gupb.manager.model.ResourceConflict;
 import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.bots.BotTester;
 import com.gupb.manager.model.Student;
@@ -50,15 +51,28 @@ public class TeamController {
 
     @PostMapping("/teams")
     @Transactional
-    public Team createTeam(@RequestBody String teamString) {
+    public Team createTeam(@RequestBody String teamString) throws ResourceConflict {
         JSONObject teamData = new JSONObject(teamString);
+
+        String name = teamData.getString("name");
+        String playerName = teamData.getString("playerName");
+
+        Optional<Team> teamOptional = teamRepository.findByName(name);
+        if(teamOptional.isPresent()) {
+            throw new ResourceConflict("Team with this name already exists");
+        }
+        teamOptional = teamRepository.findByPlayerName(playerName);
+        if(teamOptional.isPresent()) {
+            throw new ResourceConflict("Team with this player name already exists");
+        }
+
         Team team = tournamentRepository.findById(teamData.getInt("tournament_id"))
-                .map(tournament -> new Team(tournament, teamData.getString("name"),
+                .map(tournament -> new Team(tournament, name, playerName,
                         teamData.getString("githubLink"), teamData.getString("className"),
                         teamData.getString("invitationCode")))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
-        teamRepository.save(team);
+        team = teamRepository.save(team);
         Set<Student> teamStudents = new HashSet<>();
         JSONArray members =  teamData.getJSONArray("members");
         for(int i = 0; i < members.length(); i++) {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,10 +43,13 @@ public class OutputProcessing {
     public void checkAndProcessScoreLine(String line) {
         if (line.matches(scoreBoardLineRegex)) {
             final int score = parseInt(findAndTrimSubstring(line, scoreRegex, "[^\\d]"));
-            final String botName = findAndTrimSubstring(line, botNameRegex, "^\\s+", ":");
-            List<Team> teams = teamRepository.findByBotName(botName);
-            teams.forEach(team -> team.setTotalPoints(team.getTotalPoints() + score));
-            teamRepository.saveAll(teams);
+            final String playerName = findAndTrimSubstring(line, botNameRegex, "^\\s+", ":");
+            Optional<Team> teamOptional = teamRepository.findByPlayerName(playerName);
+            if (teamOptional.isPresent()) {
+                Team team = teamOptional.get();
+                team.setTotalPoints(team.getTotalPoints() + score);
+                teamRepository.save(team);
+            }
         }
     }
 

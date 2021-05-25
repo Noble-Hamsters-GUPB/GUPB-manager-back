@@ -5,7 +5,7 @@ saved_logs/
 
 ### runner logs ###
 setup_logs_dir/
-
+**/.env
 HELP.md
 .gradle
 build/
