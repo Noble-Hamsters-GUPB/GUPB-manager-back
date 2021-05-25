@@ -14,4 +14,6 @@ public interface StudentRepository extends CrudRepository<Student, Integer> {
     Optional<Student> findByEmailAddress(String emailAddress);
 
     Optional<Student> findByIndexNumber(String indexNumber);
+
+    Boolean existsByEmailAddress(String email);
 }

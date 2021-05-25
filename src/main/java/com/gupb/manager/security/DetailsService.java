@@ -3,6 +3,7 @@ package com.gupb.manager.security;
 import com.gupb.manager.model.Admin;
 import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.model.Student;
+import com.gupb.manager.model.UserDetailsImpl;
 import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,9 @@ public class DetailsService implements UserDetailsService {
         Optional<Admin> adminOptional = adminRepository.findByEmailAddress(email);
 
         return studentOptional
-                .map(student -> new User(student.getEmailAddress(), student.getPassword(),
-                        AuthorityUtils.createAuthorityList("STUDENT")))
+                .map(student -> UserDetailsImpl.build(student))
                 .orElse(adminOptional
-                        .map(admin -> new User(admin.getEmailAddress(), admin.getPassword(),
-                                AuthorityUtils.createAuthorityList("ADMIN")))
-                        .orElseThrow(() -> new ResourceNotFound("User not found")));
+                        .map(admin -> UserDetailsImpl.build(admin))
+                .orElseThrow(() -> new ResourceNotFound("User not found")));
     }
 }
