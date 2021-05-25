@@ -30,10 +30,28 @@ public class DetailsService implements UserDetailsService {
         Optional<Student> studentOptional = studentRepository.findByEmailAddress(email);
         Optional<Admin> adminOptional = adminRepository.findByEmailAddress(email);
 
-        return studentOptional
-                .map(student -> UserDetailsImpl.build(student))
-                .orElse(adminOptional
-                        .map(admin -> UserDetailsImpl.build(admin))
-                .orElseThrow(() -> new ResourceNotFound("User not found")));
+        if(studentOptional.isPresent()) {
+            return UserDetailsImpl.build(studentOptional.get());
+        }
+
+        else if(adminOptional.isPresent()) {
+            return UserDetailsImpl.build(adminOptional.get());
+        }
+
+        else {
+            throw  new ResourceNotFound("User not found");
+        }
+
+//        return adminOptional
+//                .map(admin -> {
+//                    System.out.println(admin.getEmailAddress());
+//                    return UserDetailsImpl.build(admin);
+//                })
+//                .orElse(studentOptional
+//                        .map(student -> {
+//                            System.out.println("student");
+//                            return UserDetailsImpl.build(student);
+//                        })
+//                .orElseThrow(() -> new ResourceNotFound("User not found")));
     }
 }

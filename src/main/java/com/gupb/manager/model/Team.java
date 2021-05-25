@@ -1,5 +1,12 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.StudentsSerializer;
+import com.gupb.manager.serializers.TeamsSerializer;
+import com.gupb.manager.serializers.TournamentSerializer;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -75,10 +82,12 @@ public class Team {
         return id;
     }
 
+    @JsonSerialize(using= TournamentSerializer.class)
     public Tournament getTournament() {
         return tournament;
     }
 
+    @JsonSerialize(using = StudentsSerializer.class)
     public Set<Student> getStudents() {
         return students;
     }
@@ -200,7 +209,6 @@ public class Team {
         return id == team.id &&
                 totalPoints == team.totalPoints &&
                 Objects.equals(tournament, team.tournament) &&
-                Objects.equals(students, team.students) &&
                 Objects.equals(name, team.name) &&
                 Objects.equals(githubLink, team.githubLink) &&
                 Objects.equals(mainClassName, team.mainClassName) &&
@@ -213,6 +221,6 @@ public class Team {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, students, name, githubLink, mainClassName, playerName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
+        return Objects.hash(id, tournament, name, githubLink, mainClassName, playerName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
     }
 }
