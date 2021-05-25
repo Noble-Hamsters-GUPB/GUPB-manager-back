@@ -22,11 +22,17 @@ public class Round {
     @Column(name = Columns.NUMBER)
     private int number;
 
+    @Column(name = Columns.COMPLETED_RUNS)
+    private int completedRuns;
+
     @Column(name = Columns.NUMBER_OF_RUNS)
     private int numberOfRuns;
 
     @Column(name = Columns.DATE)
     private LocalDateTime date;
+
+    @Column(name = Columns.LOGS_PATH)
+    private String logsPath;
 
     public Round() {}
 
@@ -35,6 +41,7 @@ public class Round {
         this.number = number;
         this.numberOfRuns = numberOfRuns;
         this.date = date;
+        this.completedRuns = 0;
     }
 
     public int getId() {
@@ -49,12 +56,20 @@ public class Round {
         return number;
     }
 
+    public int getCompletedRuns() {
+        return completedRuns;
+    }
+
     public int getNumberOfRuns() {
         return numberOfRuns;
     }
 
     public LocalDateTime getDate() {
         return date;
+    }
+
+    public String getLogsPath() {
+        return this.logsPath;
     }
 
     public void setId(int id) {
@@ -69,12 +84,20 @@ public class Round {
         this.number = number;
     }
 
+    public void setCompletedRuns(int completedRuns) {
+        this.completedRuns = completedRuns;
+    }
+
     public void setNumberOfRuns(int numberOfRuns) {
         this.numberOfRuns = numberOfRuns;
     }
 
     public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    public void setLogsPath(String logsPath) {
+        this.logsPath = logsPath;
     }
 
     public static class Columns {
@@ -85,9 +108,13 @@ public class Round {
 
         public static final String NUMBER = "number";
 
+        public static final String COMPLETED_RUNS = "completed_runs";
+
         public static final String NUMBER_OF_RUNS = "number_of_runs";
 
         public static final String DATE = "date";
+
+        public static final String LOGS_PATH = "logs_path";
     }
 
     @Override
@@ -97,13 +124,15 @@ public class Round {
         Round round = (Round) o;
         return id == round.id &&
                 number == round.number &&
+                completedRuns == round.completedRuns &&
                 numberOfRuns == round.numberOfRuns &&
                 Objects.equals(tournament, round.tournament) &&
-                Objects.equals(date, round.date);
+                Objects.equals(date, round.date) &&
+                Objects.equals(logsPath, round.logsPath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, number, numberOfRuns, date);
+        return Objects.hash(id, tournament, number, completedRuns, numberOfRuns, date, logsPath);
     }
 }

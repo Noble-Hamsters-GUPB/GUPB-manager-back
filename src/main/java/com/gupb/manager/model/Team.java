@@ -32,7 +32,7 @@ public class Team {
     @Column(name = Columns.CONTROLLER_CLASS_NAME)
     private String controllerClassName;
 
-    @Column(name = Columns.BOT_NAME)
+    @Column(name = Columns.BOT_NAME, unique = true)
     private String botName;
 
     @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.BOT_STATUS)
@@ -42,7 +42,9 @@ public class Team {
     @Column(name = Columns.LAST_UPDATED)
     private LocalDateTime lastUpdated;
 
-    @Column(name = Columns.MESSAGE)
+    public static final int MESSAGE_MAX_LENGTH = 2048;
+
+    @Column(name = Columns.MESSAGE, length = MESSAGE_MAX_LENGTH)
     private String message;
 
     @Column(name = Columns.TOTAL_POINTS)
