@@ -6,6 +6,9 @@ import com.gupb.manager.providers.GameProvider;
 import com.gupb.manager.python.PythonPackageManagementException;
 import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.python.PythonRunner;
+import com.gupb.manager.python.RunType;
+import com.gupb.manager.repositories.RoundRepository;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -30,6 +33,8 @@ public class SchedulerConfig {
 
     private static final String pathToRequirements = "requirements.txt";
 
+    private static final String pathToLogsDirectory = "saved_logs";
+
     @Autowired
     private GameProvider gameProvider;
 
@@ -41,6 +46,9 @@ public class SchedulerConfig {
 
     @Autowired
     private MailService mailSender;
+
+    @Autowired
+    private RoundRepository roundRepository;
 
     @Async
     public void planRound(Date taskDate, Round round) {
@@ -64,7 +72,36 @@ public class SchedulerConfig {
             e.printStackTrace();
         }
 
-        pythonRunner.run(pathToGUPBDir, virtualenvName);
+        pythonRunner.run(pathToGUPBDir, virtualenvName, RunType.NormalRun, round);
+
+        try {
+            String resultsDirPath = pathToGUPBDir + File.separator + "results";
+            File resultsDir = new File(resultsDirPath);
+            String[] logFiles = resultsDir.list();
+            String logDirName = logFiles[0].replaceAll("\\.json", "").replaceAll("\\.log", "");
+            String pathToNewLogDir = pathToLogsDirectory + File.separator + logDirName;
+            File logsDirectory = new File(pathToNewLogDir);
+            logsDirectory.mkdir();
+            for (String fileName : logFiles) {
+                File file = new File(resultsDirPath + File.separator + fileName);
+                File movedFile = new File(pathToNewLogDir + File.separator + fileName);
+                FileUtils.moveFile(file, movedFile);
+            }
+            round.setPathToLogs(pathToNewLogDir);
+        } catch (Exception ignored) {
+            round.setPathToLogs(null);
+        } finally {
+            roundRepository.save(round);
+        }
+
+        try {
+            File file = new File(pathToGUPBDir);
+            if (file.exists()) {
+                FileUtils.deleteDirectory(file);
+            }
+        } catch (IOException ignored) { }
+
+        mailSender.sendEmailsAfterRound(round);
     }
 
     public void appointMailsSending(Round round) {

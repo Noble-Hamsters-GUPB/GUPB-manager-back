@@ -77,11 +77,11 @@ public class RequirementController {
 
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
-            Requirement requirement = tournamentOptional
-                    .map(tournament -> teamOptional
-                            .map(team -> new Requirement(packageInfo, status, tournament, team))
-                            .orElseThrow(() -> new ResourceNotFound("Team not found")))
-                    .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        Requirement requirement = tournamentOptional
+                .map(tournament -> teamOptional
+                        .map(team -> new Requirement(packageInfo, status, tournament, team))
+                        .orElseThrow(() -> new ResourceNotFound("Team not found")))
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         requirement = requirementRepository.save(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());

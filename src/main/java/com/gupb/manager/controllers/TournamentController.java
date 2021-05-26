@@ -30,7 +30,7 @@ public class TournamentController {
     @GetMapping("/tournaments/{id}")
     public @ResponseBody
     ResponseEntity<Tournament>
-    getTeamById(@PathVariable Integer id) {
+    getTournamentById(@PathVariable Integer id) {
         return tournamentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));

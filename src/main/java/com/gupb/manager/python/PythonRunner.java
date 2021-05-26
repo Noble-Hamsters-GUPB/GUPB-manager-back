@@ -1,11 +1,10 @@
 package com.gupb.manager.python;
 
+import com.gupb.manager.model.Round;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Component
@@ -17,6 +16,9 @@ public class PythonRunner {
     private final String appRootPath = System.getProperty("user.dir");
 
     private String[] args = null;
+
+    @Autowired
+    private OutputProcessing outputProcessing;
 
     private void setExecutionPath(String pathFromAppRootToGUPBDir, String virtualenvName) {
         String pathToGUPBDir = appRootPath + File.separator + pathFromAppRootToGUPBDir;
@@ -71,21 +73,15 @@ public class PythonRunner {
         }
     }
 
-    private int execProcess() throws IOException, InterruptedException {
+    private int execProcess(Callback stdOutputCallback, Callback stdErrorCallback) throws IOException, InterruptedException {
         System.out.println(String.join(" ", args));
         Process process = Runtime.getRuntime().exec(args);
 
         BufferedReader brError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        Thread errorStreamThread = new Thread(() -> processStreamOutput(brError,
-                (line) -> {
-                    System.out.println(line);
-                }));
+        Thread errorStreamThread = new Thread(() -> processStream(brError, stdErrorCallback));
 
         BufferedReader brOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        Thread inputStreamThread = new Thread(() -> processStreamOutput(brOutput,
-                (line) -> {
-                    System.out.println(line);
-                }));
+        Thread inputStreamThread = new Thread(() -> processStream(brOutput, stdOutputCallback));
 
         errorStreamThread.start();
         inputStreamThread.start();
@@ -94,35 +90,87 @@ public class PythonRunner {
         inputStreamThread.join();
 
         process.waitFor();
-        System.out.println("Exit val: " + process.exitValue());
         int exitStatus = process.exitValue();
         process.destroy();
 
         return exitStatus;
     }
 
-    public int run(String pathFromAppRootToGUPBDir, String virtualenvName) {
-        int exitStatus = 1;
+    public PythonExitStatus run(String pathFromAppRootToGUPBDir, String virtualenvName, RunType runType, Round round) {
+        PythonExitStatus pythonExitStatus;
         try {
             lock.lock();
             setExecutionPath(pathFromAppRootToGUPBDir, virtualenvName);
-            exitStatus = execProcess();
+            outputProcessing.reset();
+            int exitStatus = 1;
+
+            String outputDirPath = appRootPath + File.separator + pathFromAppRootToGUPBDir + File.separator + "results";
+            String outputFilePath = outputDirPath + File.separator + "output.txt";
+            File outputDir = new File(outputDirPath);
+            outputDir.mkdir();
+            File outputFile = new File(outputFilePath);
+            outputFile.createNewFile();
+            FileWriter outputFileWriter = new FileWriter(outputFilePath);
+
+            switch (runType) {
+                case TestRun:
+                    exitStatus = execProcess(
+                            line -> {
+                                System.out.println(line);
+                            },
+                            line -> {
+                                System.out.println(line);
+                                outputProcessing.checkAndProcessTraceback(line);
+                            }
+                    );
+                    break;
+                case NormalRun:
+                    exitStatus = execProcess(
+                            line -> {
+                                System.out.println(line);
+                                synchronized (outputFileWriter) {
+                                    try {
+                                        outputFileWriter.write(line + "\n");
+                                    } catch (IOException ignored) { }
+                                }
+                                outputProcessing.checkAndProcessScoreLine(line);
+                            },
+                            line -> {
+                                System.out.println(line);
+                                synchronized (outputFileWriter) {
+                                    try {
+                                        outputFileWriter.write(line + "\n");
+                                    } catch (IOException ignored) { }
+                                }
+                                outputProcessing.checkAndProcessTqdmProgressBar(line, round);
+                            }
+                    );
+                    break;
+                case DevRun:
+                    exitStatus = execProcess(System.out::println, System.out::println);
+                    break;
+            }
+
+            outputFileWriter.close();
+
+            pythonExitStatus = new PythonExitStatus(exitStatus, outputProcessing.getErrorMessage());
         }
         catch (InterruptedException | IOException e) {
             e.printStackTrace();
+            pythonExitStatus = new PythonExitStatus(-1, "");
         }
         finally {
             lock.unlock();
         }
 
-        return exitStatus;
+        return pythonExitStatus;
     }
 
     private interface Callback {
         void call(String line);
     }
 
-    private void processStreamOutput(BufferedReader br, Callback callback) {
+    private void processStream(BufferedReader br, Callback callback) {
         String line = null;
         while (true) {
             try {

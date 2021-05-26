@@ -1,6 +1,7 @@
 package com.gupb.manager.providers;
 
 import com.gupb.manager.git.GitUtilities;
+import com.gupb.manager.model.PlayerStatus;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.model.Team;
 import com.gupb.manager.python.PythonPackageManagementException;
@@ -16,7 +17,7 @@ import java.util.List;
 @Component
 public class GameProvider {
 
-    private static final String source = "https://github.com/Prpht/GUPB";
+    private static final String source = "https://github.com/janusz-tracz/gupb-original";//"https://github.com/Prpht/GUPB";
 
     private static final String configFile = "gupb" + File.separator + "default_config.py";
 
@@ -60,8 +61,10 @@ public class GameProvider {
             }
             else if (line.contains("random.RandomController(\"Alice\"),")) {
                 for (Team team : teamsInRound) {
-                    stringBuilder.append("\t\t").append(team.getSafeName()).append(".")
-                            .append(team.getMainClassName()).append("(").append("),\n");
+                    if (team.getPlayerStatus() == PlayerStatus.READY) {
+                        stringBuilder.append("\t\t").append(team.getSafeName()).append(".")
+                                .append(team.getMainClassName()).append("(").append("),\n");
+                    }
                 }
                 for (int i = 0; i < 3; i++) {
                     br.readLine();
@@ -71,7 +74,9 @@ public class GameProvider {
                 stringBuilder.append(line).append("\n");
                 if (line.contains("from gupb.controller import random")) {
                     for (Team team : teamsInRound) {
-                        stringBuilder.append("from gupb.controller import ").append(team.getSafeName()).append("\n");
+                        if (team.getPlayerStatus() == PlayerStatus.READY) {
+                            stringBuilder.append("from gupb.controller import ").append(team.getSafeName()).append("\n");
+                        }
                     }
                 }
             }

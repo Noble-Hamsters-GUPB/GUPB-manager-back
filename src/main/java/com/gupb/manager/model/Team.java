@@ -39,7 +39,7 @@ public class Team {
     @Column(name = Columns.MAIN_CLASS_NAME)
     private String mainClassName;
 
-    @Column(name = Columns.PLAYER_NAME)
+    @Column(name = Columns.PLAYER_NAME, unique = true)
     private String playerName;
 
     @Column(columnDefinition = "ENUM('IN_TESTING', 'INCOMPLETE', 'READY')", name = Columns.PLAYER_STATUS)
@@ -49,7 +49,9 @@ public class Team {
     @Column(name = Columns.LAST_UPDATED)
     private LocalDateTime lastUpdated;
 
-    @Column(name = Columns.MESSAGE)
+    public static final int MESSAGE_MAX_LENGTH = 2048;
+
+    @Column(name = Columns.MESSAGE, length = MESSAGE_MAX_LENGTH)
     private String message;
 
     @Column(name = Columns.TOTAL_POINTS)

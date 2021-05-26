@@ -53,61 +53,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(detailsService).passwordEncoder(PASSWORD_ENCODER);
     }
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.httpBasic().and().authorizeRequests()
-//                .antMatchers(HttpMethod.OPTIONS, "/**").hasRole("ADMIN")
-//                .and()
-//                .logout().permitAll()
-//                .and()
-//                .csrf().disable();
-//        //http.headers().frameOptions().disable();
-//    }
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-//    http
-//            .csrf().disable()
-//            .authorizeRequests()
-//            .antMatchers("/api/v1/auth").permitAll()
-//            .antMatchers("/**").hasAuthority("ADMIN")
-//            .anyRequest().authenticated()
-////            .logout().permitAll()
-//            .and().cors().configurationSource(corsConfigurationSource());//and()
-////            .formLogin();
-////            .httpBasic();
-//    }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and().csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .authorizeRequests().antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/api/v1/test/**").permitAll()
+                .antMatchers("/api/v1/students").permitAll()
+                .antMatchers("/api/v1/admins").permitAll()      //TODO
+                .antMatchers("/ws-message/**").permitAll()
+                .anyRequest().authenticated();
 
-    http.cors().and().csrf().disable()
-            .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-            .authorizeRequests().antMatchers("/api/v1/auth/**").permitAll()
-            .antMatchers("/api/v1/test/**").permitAll()
-            .antMatchers("/api/v1/students").permitAll()
-            .antMatchers("/ws-message/**").permitAll()
-            .anyRequest().authenticated();
-
-    http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-}
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
-//        config.setAllowCredentials(true);
-//        config.setAllowedHeaders(Arrays.asList("Content-Type","Autorization"));
-//
-//        UrlBasedCorsConfigurationSource source= new UrlBasedCorsConfigurationSource();
-//
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
-//
-//    @Bean
-//    public FilterRegistrationBean<CorsFilter> corsFilter(){
-//        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<CorsFilter>(new CorsFilter(corsConfigurationSource()));
-//        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-//        return bean;
-//    }
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
 }

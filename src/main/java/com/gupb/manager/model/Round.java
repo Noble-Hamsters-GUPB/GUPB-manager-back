@@ -22,6 +22,9 @@ public class Round {
     @Column(name = Columns.NUMBER)
     private int number;
 
+    @Column(name = Columns.COMPLETED_RUNS)
+    private int completedRuns;
+
     @Column(name = Columns.NUMBER_OF_RUNS)
     private int numberOfRuns;
 
@@ -31,6 +34,7 @@ public class Round {
     @Column(name = Columns.PATH_TO_LOGS)
     private String pathToLogs;
 
+
     public Round() {}
 
     public Round(Tournament tournament, int number, int numberOfRuns, LocalDateTime date) {
@@ -38,6 +42,7 @@ public class Round {
         this.number = number;
         this.numberOfRuns = numberOfRuns;
         this.date = date;
+        this.completedRuns = 0;
     }
 
     public int getId() {
@@ -50,6 +55,10 @@ public class Round {
 
     public int getNumber() {
         return number;
+    }
+
+    public int getCompletedRuns() {
+        return completedRuns;
     }
 
     public int getNumberOfRuns() {
@@ -76,6 +85,10 @@ public class Round {
         this.number = number;
     }
 
+    public void setCompletedRuns(int completedRuns) {
+        this.completedRuns = completedRuns;
+    }
+
     public void setNumberOfRuns(int numberOfRuns) {
         this.numberOfRuns = numberOfRuns;
     }
@@ -96,6 +109,8 @@ public class Round {
 
         public static final String NUMBER = "number";
 
+        public static final String COMPLETED_RUNS = "completed_runs";
+
         public static final String NUMBER_OF_RUNS = "number_of_runs";
 
         public static final String DATE = "date";
@@ -110,6 +125,7 @@ public class Round {
         Round round = (Round) o;
         return id == round.id &&
                 number == round.number &&
+                completedRuns == round.completedRuns &&
                 numberOfRuns == round.numberOfRuns &&
                 Objects.equals(tournament, round.tournament) &&
                 Objects.equals(date, round.date) &&

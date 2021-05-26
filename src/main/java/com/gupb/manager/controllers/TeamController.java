@@ -66,8 +66,7 @@ public class TeamController {
             throw new ResourceConflict("Team with this player name already exists");
         }
 
-
-        Team team = tournamentRepository.findById(teamData.getInt("tournment_id"))
+        Team team = tournamentRepository.findById(teamData.getInt("tournament_id"))
                 .map(tournament -> new Team(tournament, name, playerName,
                         teamData.getString("githubLink"), teamData.getString("className"),
                         teamData.getString("invitationCode")))
@@ -104,7 +103,7 @@ public class TeamController {
     }
 
     @PostMapping("/update-bot")
-    public void updateBot(@RequestBody int teamId) {
+    public void updateBot(@RequestParam(name = "teamId") int teamId) {
         var teamOptional = teamRepository.findById(teamId);
         teamOptional.ifPresent(team -> {
             team.setLastUpdated(LocalDateTime.now());
