@@ -39,6 +39,9 @@ public class Team {
     @Column(name = Columns.MAIN_CLASS_NAME)
     private String mainClassName;
 
+    @Column(name = Columns.BRANCH_NAME)
+    private String branchName;
+
     @Column(name = Columns.PLAYER_NAME, unique = true)
     private String playerName;
 
@@ -67,9 +70,10 @@ public class Team {
         this.githubLink = githubLink;
     }
 
-    public Team(Tournament tournament, String name, String playerName, String githubLink, String mainClassName, String invitationCode) {
+    public Team(Tournament tournament, String name, String branchName, String playerName, String githubLink, String mainClassName, String invitationCode) {
         this.tournament = tournament;
         this.name = name;
+        this.branchName = branchName;
         this.playerName = playerName;
         this.githubLink = githubLink;
         this.mainClassName = mainClassName;
@@ -104,6 +108,10 @@ public class Team {
 
     public String getMainClassName() {
         return mainClassName;
+    }
+
+    public String getBranchName() {
+        return branchName;
     }
 
     public String getPlayerName() {
@@ -154,6 +162,10 @@ public class Team {
         this.mainClassName = controllerClassName;
     }
 
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
@@ -190,6 +202,8 @@ public class Team {
 
         public static final String MAIN_CLASS_NAME = "controller_class_name";
 
+        public static final String BRANCH_NAME = "branch_name";
+
         public static final String PLAYER_NAME = "player_name";
 
         public static final String PLAYER_STATUS = "bot_status";
@@ -214,6 +228,7 @@ public class Team {
                 Objects.equals(name, team.name) &&
                 Objects.equals(githubLink, team.githubLink) &&
                 Objects.equals(mainClassName, team.mainClassName) &&
+                Objects.equals(branchName, team.branchName) &&
                 Objects.equals(playerName, team.playerName) &&
                 playerStatus == team.playerStatus &&
                 Objects.equals(lastUpdated, team.lastUpdated) &&
@@ -223,6 +238,6 @@ public class Team {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournament, name, githubLink, mainClassName, playerName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
+        return Objects.hash(id, tournament, name, githubLink, mainClassName, branchName, playerName, playerStatus, lastUpdated, message, totalPoints, invitationCode);
     }
 }

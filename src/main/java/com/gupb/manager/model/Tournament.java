@@ -28,15 +28,23 @@ public class Tournament {
     @JoinColumn(name = Columns.CREATOR_ID)
     private Admin creator;
 
+    @Column(name = Columns.GITHUB_LINK)
+    private String githubLink;
+
+    @Column(name = Columns.BRANCH_NAME)
+    private String branchName;
+
     @Column(name = Columns.INVITATION_CODE)
     private String invitationCode;
 
     public Tournament() {}
 
-    public Tournament(String name, AccessMode accessMode, Admin creator, String invitationCode) {
+    public Tournament(String name, AccessMode accessMode, Admin creator, String githubLink, String branchName, String invitationCode) {
         this.name = name;
         this.accessMode = accessMode;
         this.creator = creator;
+        this.githubLink = githubLink;
+        this.branchName = branchName;
         this.invitationCode = invitationCode;
     }
 
@@ -55,6 +63,14 @@ public class Tournament {
     @JsonSerialize(using = AdminSerializer.class)
     public Admin getCreator() {
         return creator;
+    }
+
+    public String getGithubLink() {
+        return githubLink;
+    }
+
+    public String getBranchName() {
+        return branchName;
     }
 
     public String getInvitationCode() {
@@ -77,6 +93,14 @@ public class Tournament {
         this.creator = creator;
     }
 
+    public void setGithubLink(String githubLink) {
+        this.githubLink = githubLink;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
     public void setInvitationCode(String invitationCode) {
         this.invitationCode = invitationCode;
     }
@@ -91,6 +115,10 @@ public class Tournament {
 
         public static final String CREATOR_ID = "creator_id";
 
+        public static final String GITHUB_LINK = "github_link";
+
+        public static final String BRANCH_NAME = "branch_name";
+
         public static final String INVITATION_CODE = "invitation_code";
     }
 
@@ -103,11 +131,13 @@ public class Tournament {
                 Objects.equals(name, that.name) &&
                 accessMode == that.accessMode &&
                 Objects.equals(creator, that.creator) &&
+                Objects.equals(githubLink, that.githubLink) &&
+                Objects.equals(branchName, that.branchName) &&
                 Objects.equals(invitationCode, that.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, accessMode, creator, invitationCode);
+        return Objects.hash(id, name, accessMode, creator, githubLink, branchName, invitationCode);
     }
 }

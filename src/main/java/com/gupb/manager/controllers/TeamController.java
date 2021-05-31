@@ -67,7 +67,7 @@ public class TeamController {
         }
 
         Team team = tournamentRepository.findById(teamData.getInt("tournament_id"))
-                .map(tournament -> new Team(tournament, name, playerName,
+                .map(tournament -> new Team(tournament, name, teamData.getString("branchName"), playerName,
                         teamData.getString("githubLink"), teamData.getString("className"),
                         teamData.getString("invitationCode")))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
@@ -88,6 +88,56 @@ public class TeamController {
         return team;
     }
 
+    @PostMapping("/teams/edit")
+    @Transactional
+    public Team editTeam(@RequestBody String teamString) throws ResourceConflict {
+        JSONObject teamData = new JSONObject(teamString);
+
+        Optional<Team> teamOptional = teamRepository.findById(teamData.getInt("id"));
+        Team team = teamOptional.orElseThrow(() -> new ResourceNotFound("Team not found"));
+        String name = teamData.getString("name");
+        String playerName = teamData.getString("playerName");
+
+        Optional<Team> anotherTeamOptional;
+
+        if(!name.equals(team.getName())) {
+            anotherTeamOptional = teamRepository.findByName(name);
+            if(anotherTeamOptional.isPresent()) {
+                throw new ResourceConflict("Team with this name already exists");
+            }
+            team.setName(name);
+        }
+
+        if(!playerName.equals(team.getPlayerName())) {
+            anotherTeamOptional = teamRepository.findByPlayerName(playerName);
+            if (anotherTeamOptional.isPresent()) {
+                throw new ResourceConflict("Team with this player name already exists");
+            }
+            team.setPlayerName(playerName);
+        }
+
+        team.setMainClassName(teamData.getString("mainClassName"));
+        team.setInvitationCode(teamData.getString("invitationCode"));
+
+        boolean changedRepo = false;
+        String githubLink = teamData.getString("githubLink");
+        String branchName = teamData.getString("branchName");
+
+        if(!githubLink.equals(team.getGithubLink()) || !branchName.equals(team.getBranchName())) {
+            changedRepo = true;
+            team.setGithubLink(githubLink);
+            team.setBranchName(branchName);
+        }
+
+        team = teamRepository.save(team);
+
+        if(changedRepo) {
+            team.setLastUpdated(LocalDateTime.now());
+            botTester.testTeamBot(team);
+        }
+        return team;
+    }
+
     @PostMapping("/teams/{id}")
     @Transactional
     public Team joinTeam(@PathVariable Integer id, @RequestBody Integer studentId) {
@@ -103,6 +153,7 @@ public class TeamController {
     }
 
     @PostMapping("/update-bot")
+    @Transactional
     public void updateBot(@RequestParam(name = "teamId") int teamId) {
         var teamOptional = teamRepository.findById(teamId);
         teamOptional.ifPresent(team -> {
