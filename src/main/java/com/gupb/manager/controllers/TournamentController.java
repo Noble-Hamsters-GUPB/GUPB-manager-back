@@ -7,6 +7,7 @@ import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -37,6 +38,7 @@ public class TournamentController {
     }
     
     @PostMapping("/tournaments")
+    @Transactional
     public Tournament createTournament(@RequestBody String tournamentString) throws ResourceConflict {
         JSONObject tournamentData = new JSONObject(tournamentString);
 
@@ -51,6 +53,32 @@ public class TournamentController {
         Admin creator = adminRepository.findById(tournamentData.getInt("creator"))
                 .orElseThrow(() -> new ResourceNotFound("Admin not found"));
         return tournamentRepository.save(new Tournament(name, tournamentData.optEnum(AccessMode.class,
-                "accessMode"), creator, tournamentData.getString("invitationCode")));
+                "accessMode"), creator, tournamentData.getString("githubLink"),
+                tournamentData.getString("branchName"), tournamentData.getString("invitationCode")));
+    }
+
+    @PostMapping("/tournaments/edit")
+    @Transactional
+    public Tournament editTournament(@RequestBody String tournamentString) throws ResourceConflict {
+        JSONObject tournamentData = new JSONObject(tournamentString);
+
+        Optional<Tournament> tournamentOptional = tournamentRepository.findById(tournamentData.getInt("id"));
+        Tournament tournament = tournamentOptional.orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+
+        String name = tournamentData.getString("name");
+
+        if(!name.equals(tournament.getName())) {
+            Optional<Tournament> anotherTournamentOptional = tournamentRepository.findByName(name);
+            if(anotherTournamentOptional.isPresent()) {
+                throw new ResourceConflict("Tournament with this name already exists");
+            }
+            tournament.setName(name);
+        }
+
+        tournament.setGithubLink(tournamentData.getString("githubLink"));
+        tournament.setBranchName(tournamentData.getString("branchName"));
+        tournament.setInvitationCode(tournamentData.getString("invitationCode"));
+
+        return tournamentRepository.save(tournament);
     }
 }
