@@ -164,7 +164,7 @@ public class TeamController {
                 .orElseThrow(() -> new ResourceNotFound("Team not found"));
     }
 
-    @PostMapping("/update-bot")
+    @PostMapping("/update-player")
     @Transactional
     public void updateBot(@RequestParam(name = "teamId") int teamId) {
         var teamOptional = teamRepository.findById(teamId);
