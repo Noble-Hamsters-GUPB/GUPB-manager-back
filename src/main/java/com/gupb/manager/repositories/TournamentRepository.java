@@ -15,4 +15,6 @@ public interface TournamentRepository extends CrudRepository<Tournament, Integer
 
     @Query("select tournament from Tournament tournament left join fetch tournament.creator")
     Optional<Tournament> findByName(String name);
+
+    List<Tournament> findByCreatorId(Integer id);
 }

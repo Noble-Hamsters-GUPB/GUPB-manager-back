@@ -1,10 +1,7 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.model.ResourceConflict;
-import com.gupb.manager.model.ResourceNotFound;
+import com.gupb.manager.model.*;
 import com.gupb.manager.bots.BotTester;
-import com.gupb.manager.model.Student;
-import com.gupb.manager.model.Team;
 import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import com.gupb.manager.repositories.TournamentRepository;
@@ -41,12 +38,27 @@ public class TeamController {
         return teamRepository.findAll();
     }
 
-    @GetMapping("/teams/{id}")
+    @GetMapping("/teams/id")
     public @ResponseBody ResponseEntity<Team>
-    getTeamById(@PathVariable Integer id) {
+    getTeamById(@RequestParam Integer id) {
         return teamRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Team not found"));
+    }
+
+    @GetMapping("/teams/tournament")
+    public @ResponseBody
+    ResponseEntity<List<Team>>
+    getTeams(@RequestParam Integer tournamentId) {
+        return ResponseEntity.ok(teamRepository.findByTournamentId(tournamentId));
+    }
+
+    @GetMapping("teams/code")
+    public ResponseEntity<Boolean>
+    checkInvitationCode(@RequestParam Integer id, @RequestParam String code) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Team not found"));
+        return ResponseEntity.ok(team.getInvitationCode().equals(code));
     }
 
     @PostMapping("/teams")
@@ -138,9 +150,9 @@ public class TeamController {
         return team;
     }
 
-    @PostMapping("/teams/{id}")
+    @PostMapping("/teams/join")
     @Transactional
-    public Team joinTeam(@PathVariable Integer id, @RequestBody Integer studentId) {
+    public Team joinTeam(@RequestParam Integer id, @RequestBody Integer studentId) {
         return teamRepository.findById(id)
                 .map(team -> studentRepository.findById(studentId)
                         .map(student -> {
