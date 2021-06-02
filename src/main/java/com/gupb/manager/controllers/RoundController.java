@@ -10,6 +10,7 @@ import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ public class RoundController {
     }
 
     @PostMapping("/rounds")
+    @Transactional
     public Round createRound(@RequestBody String roundData) {
         JSONObject roundJSON = new JSONObject(roundData);
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(roundJSON.getInt("tournamentId"));
@@ -54,9 +56,23 @@ public class RoundController {
                 .map(tournament -> new Round(tournament, number, numberOfRounds, date))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
-        roundRepository.save(round);
+        round = roundRepository.save(round);
         schedulerConfig.appointMailsSending(round);
         schedulerConfig.appointRound(round);
+        return round;
+    }
+
+    @PostMapping("/rounds/edit")
+    @Transactional
+    public Round editRound(@RequestBody String roundString) {
+        JSONObject roundData = new JSONObject(roundString);
+
+        Optional<Round> roundOptional = roundRepository.findById(roundData.getInt("id"));
+        Round round = roundOptional.orElseThrow(() -> new ResourceNotFound("Round not found"));
+
+        round.setNumberOfRuns(roundData.getInt("numberOfRuns"));
+
+        round = roundRepository.save(round);
         return round;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ public class RequirementController {
     }
 
     @PostMapping("/requirements")
+    @Transactional
     public Requirement createRequirement(@RequestBody String requirementData) throws ResourceConflict {
         JSONObject requirementJSON = new JSONObject(requirementData);
         Optional<Tournament> tournamentOptional = tournamentRepository.findById(requirementJSON.getInt("tournamentId"));

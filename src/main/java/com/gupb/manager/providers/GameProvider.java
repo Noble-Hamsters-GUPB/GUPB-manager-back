@@ -4,6 +4,7 @@ import com.gupb.manager.git.GitUtilities;
 import com.gupb.manager.model.PlayerStatus;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.model.Team;
+import com.gupb.manager.model.Tournament;
 import com.gupb.manager.python.PythonPackageManagementException;
 import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.repositories.TeamRepository;
@@ -44,11 +45,12 @@ public class GameProvider {
 
         List<Team> teamsInRound = teamRepository.findByTournament(round.getTournament());
 
-        gitUtilities.cloneRepository(source, dirName, "master");
+        Tournament tournament = round.getTournament();
+        gitUtilities.cloneRepository(tournament.getGithubLink(), dirName, tournament.getBranchName());
         String destination = dirName + File.separator + controllerDirectoryName;
 
         for (Team team : teamsInRound) {
-            gitUtilities.cloneRepository(team.getGithubLink(), destination + File.separator + team.getSafeName(), "master");
+            gitUtilities.cloneRepository(team.getGithubLink(), destination + File.separator + team.getSafeName(), team.getBranchName());
         }
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -101,9 +103,10 @@ public class GameProvider {
 
     public void provideTestRoundWithBot(String dirName, Team team) throws GitAPIException, IOException {
 
-        gitUtilities.cloneRepository(source, dirName, "master");
+        Tournament  tournament = team.getTournament();
+        gitUtilities.cloneRepository(tournament.getGithubLink(), dirName, tournament.getBranchName());
         String destination = dirName + File.separator + controllerDirectoryName + File.separator + team.getSafeName();
-        gitUtilities.cloneRepository(team.getGithubLink(), destination, "master");
+        gitUtilities.cloneRepository(team.getGithubLink(), destination, team.getBranchName());
 
         StringBuilder stringBuilder = new StringBuilder();
         File file = new File(dirName + File.separator + configFile);

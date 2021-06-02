@@ -1,6 +1,7 @@
 package com.gupb.manager.scheduler;
 
 import com.gupb.manager.mails.MailService;
+import com.gupb.manager.model.ResourceNotFound;
 import com.gupb.manager.model.Round;
 import com.gupb.manager.providers.GameProvider;
 import com.gupb.manager.python.PythonPackageManagementException;
@@ -20,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 @Component
@@ -77,14 +80,19 @@ public class SchedulerConfig {
         try {
             String resultsDirPath = pathToGUPBDir + File.separator + "results";
             File resultsDir = new File(resultsDirPath);
-            String[] logFiles = resultsDir.list();
-            String logDirName = logFiles[0].replaceAll("\\.json", "").replaceAll("\\.log", "");
+            File[] logFiles = resultsDir.listFiles();
+            String logDirName = List.of(Objects.requireNonNull(logFiles))
+                    .stream()
+                    .filter(file -> file.getName().contains(".log"))
+                    .findFirst()
+                    .orElseThrow(() -> new ResourceNotFound("Cannot find log file."))
+                    .getName()
+                    .replaceAll("\\.log", "");
             String pathToNewLogDir = pathToLogsDirectory + File.separator + logDirName;
             File logsDirectory = new File(pathToNewLogDir);
             logsDirectory.mkdir();
-            for (String fileName : logFiles) {
-                File file = new File(resultsDirPath + File.separator + fileName);
-                File movedFile = new File(pathToNewLogDir + File.separator + fileName);
+            for (File file : logFiles) {
+                File movedFile = new File(pathToNewLogDir + File.separator + file.getName());
                 FileUtils.moveFile(file, movedFile);
             }
             round.setPathToLogs(pathToNewLogDir);
