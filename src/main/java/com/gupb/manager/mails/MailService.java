@@ -1,9 +1,6 @@
 package com.gupb.manager.mails;
 
-import com.gupb.manager.model.Requirement;
-import com.gupb.manager.model.Round;
-import com.gupb.manager.model.Student;
-import com.gupb.manager.model.Team;
+import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,15 +57,15 @@ public class MailService {
     public void sendEmailToCreatorAfterLibraryRequest(Requirement requirement) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("gupb.manager@gmail.com");
-        message.setTo(requirement.getTournament().getCreator().getEmailAddress());
+        message.setTo(requirement.getRequestedBy().getTournament().getCreator().getEmailAddress());
         message.setSubject("New library request");
-        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
+        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getRequestedBy().getTournament().getName()
                 + " has appeared. Go to the manager's website to accept or reject it.");
         javaMailSender.send(message);
     }
 
     public void sendEmailsToStudentsAfterRequestStatusChange(Requirement requirement) {
-        List<Team> teams = teamRepository.findByTournament(requirement.getTournament());
+        List<Team> teams = teamRepository.findByTournament(requirement.getRequestedBy().getTournament());
         for (Team team : teams) {
             List<Student> students = studentRepository.findByTeamsId(team.getId());
             for (Student student : students) {
@@ -82,7 +79,7 @@ public class MailService {
         message.setFrom("gupb.manager@gmail.com");
         message.setTo(student.getEmailAddress());
         message.setSubject("Library request resolved");
-        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getTournament().getName()
+        message.setText("A request for " + requirement.getPackageInfo() + " for tournament " + requirement.getRequestedBy().getTournament().getName()
                 + " has changed status to " + requirement.getStatus() + ". Go to the manager's website to see all libraries.");
         javaMailSender.send(message);
     }

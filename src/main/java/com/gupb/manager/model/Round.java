@@ -1,5 +1,8 @@
 package com.gupb.manager.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gupb.manager.serializers.TournamentSerializer;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -15,7 +18,7 @@ public class Round {
     @Column(name = Columns.ID)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
 
@@ -49,6 +52,7 @@ public class Round {
         return id;
     }
 
+    @JsonSerialize(using= TournamentSerializer.class)
     public Tournament getTournament() {
         return tournament;
     }

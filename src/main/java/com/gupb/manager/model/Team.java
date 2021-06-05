@@ -23,7 +23,7 @@ public class Team {
     @Column(name = Columns.ID)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
 

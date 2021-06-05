@@ -26,19 +26,14 @@ public class Requirement {
     private RequirementStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = Columns.TOURNAMENT_ID)
-    private Tournament tournament;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = Columns.TEAM_ID)
     private Team requestedBy;
 
     public Requirement() {}
 
-    public Requirement(String packageInfo, RequirementStatus status, Tournament tournament, Team requestedBy) {
+    public Requirement(String packageInfo, RequirementStatus status, Team requestedBy) {
         this.packageInfo = packageInfo;
         this.status = status;
-        this.tournament = tournament;
         this.requestedBy = requestedBy;
     }
 
@@ -54,10 +49,6 @@ public class Requirement {
         return status;
     }
 
-    @JsonSerialize(using = TournamentSerializer.class)
-    public Tournament getTournament() {
-        return tournament;
-    }
 
     @JsonSerialize(using = TeamSerializer.class)
     public Team getRequestedBy() {
@@ -76,10 +67,6 @@ public class Requirement {
         this.status = status;
     }
 
-    public void setTournament(Tournament tournament) {
-        this.tournament = tournament;
-    }
-
     public void setRequestedBy(Team requestedBy) {
         this.requestedBy = requestedBy;
     }
@@ -92,8 +79,6 @@ public class Requirement {
 
         public static final String STATUS = "status";
 
-        public static final String TOURNAMENT_ID = "tournament_id";
-
         public static final String TEAM_ID = "team_id";
     }
 
@@ -105,12 +90,11 @@ public class Requirement {
         return id == that.id &&
                 Objects.equals(packageInfo, that.packageInfo) &&
                 status == that.status &&
-                Objects.equals(tournament, that.tournament) &&
                 Objects.equals(requestedBy, that.requestedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, packageInfo, status, tournament, requestedBy);
+        return Objects.hash(id, packageInfo, status, requestedBy);
     }
 }
