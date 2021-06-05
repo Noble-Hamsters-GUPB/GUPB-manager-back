@@ -88,7 +88,7 @@ public class TeamController {
         return team;
     }
 
-    @PostMapping("/teams/edit")
+    @PutMapping("/teams/edit")
     @Transactional
     public Team editTeam(@RequestBody String teamString) throws ResourceConflict {
         JSONObject teamData = new JSONObject(teamString);

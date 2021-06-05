@@ -57,7 +57,7 @@ public class TournamentController {
                 tournamentData.getString("branchName"), tournamentData.getString("invitationCode")));
     }
 
-    @PostMapping("/tournaments/edit")
+    @PutMapping("/tournaments/edit")
     @Transactional
     public Tournament editTournament(@RequestBody String tournamentString) throws ResourceConflict {
         JSONObject tournamentData = new JSONObject(tournamentString);

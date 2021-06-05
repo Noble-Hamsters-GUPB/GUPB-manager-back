@@ -62,7 +62,7 @@ public class RoundController {
         return round;
     }
 
-    @PostMapping("/rounds/edit")
+    @PutMapping("/rounds/edit")
     @Transactional
     public Round editRound(@RequestBody String roundString) {
         JSONObject roundData = new JSONObject(roundString);

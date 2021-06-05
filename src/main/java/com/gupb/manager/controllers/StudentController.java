@@ -52,7 +52,7 @@ public class StudentController {
         return student;
     }
 
-    @PostMapping("/students/edit")
+    @PutMapping("/students/edit")
     @Transactional
     public Student editStudent(@RequestBody String studentString) throws ResourceConflict {
         JSONObject studentData = new JSONObject(studentString);
