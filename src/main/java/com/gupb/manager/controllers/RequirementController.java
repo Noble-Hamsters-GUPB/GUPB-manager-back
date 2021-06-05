@@ -61,7 +61,6 @@ public class RequirementController {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Requirement not exists with id: " + id));
 
-        requirement.setPackageInfo(requirementDetails.getPackageInfo());
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
@@ -73,25 +72,16 @@ public class RequirementController {
 
     @PostMapping("/requirements")
     @Transactional
-    public Requirement createRequirement(@RequestBody String requirementData) throws ResourceConflict {
+    public Requirement createRequirement(@RequestBody String requirementData) {
         JSONObject requirementJSON = new JSONObject(requirementData);
-        Optional<Tournament> tournamentOptional = tournamentRepository.findById(requirementJSON.getInt("tournamentId"));
         Optional<Team> teamOptional = teamRepository.findById(requirementJSON.getInt("teamId"));
         String packageInfo = requirementJSON.getString("packageInfo");
 
-        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
-
-        if(requirementOptional.isPresent()) {
-            throw new ResourceConflict("This requirement already exists");
-        }
-
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
-        Requirement requirement = tournamentOptional
-                .map(tournament -> teamOptional
-                        .map(team -> new Requirement(packageInfo, status, tournament, team))
-                        .orElseThrow(() -> new ResourceNotFound("Team not found")))
-                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        Requirement requirement = teamOptional
+                        .map(team -> new Requirement(packageInfo, status, team))
+                        .orElseThrow(() -> new ResourceNotFound("Team not found"));
 
         requirement = requirementRepository.save(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());

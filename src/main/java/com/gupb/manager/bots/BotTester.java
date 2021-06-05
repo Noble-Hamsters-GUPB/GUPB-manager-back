@@ -34,7 +34,6 @@ public class BotTester {
         String teamDirName = dirName + team.getSafeName();
         Thread thread = new Thread(() -> {
             team.setPlayerStatus(PlayerStatus.IN_TESTING);
-            teamRepository.save(team);
             try {
                 gameProvider.provideTestRoundWithBot(teamDirName, team);
             } catch (IOException | GitAPIException e) {
@@ -43,7 +42,8 @@ public class BotTester {
                 return;
             }
 
-            PythonExitStatus pythonExitStatus = pythonRunner.run(teamDirName, virtualenvName, RunType.TestRun, null);
+            String moduleName = team.getTournament().getModuleName();
+            PythonExitStatus pythonExitStatus = pythonRunner.run(teamDirName, virtualenvName, RunType.TestRun, moduleName, null);
 
             if (pythonExitStatus.exitedWithError()) {
                 team.setPlayerStatus(PlayerStatus.INCOMPLETE);

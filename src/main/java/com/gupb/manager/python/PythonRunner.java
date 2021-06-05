@@ -20,13 +20,13 @@ public class PythonRunner {
     @Autowired
     private OutputProcessing outputProcessing;
 
-    private void setExecutionPath(String pathFromAppRootToGUPBDir, String virtualenvName) {
+    private void setExecutionPath(String moduleName, String pathFromAppRootToGUPBDir, String virtualenvName) {
         String pathToGUPBDir = appRootPath + File.separator + pathFromAppRootToGUPBDir;
         String pathToVirtualenv = pathToGUPBDir + File.separator + virtualenvName;
-        setArgs(pathToGUPBDir, pathToVirtualenv, virtualenvName);
+        setArgs(moduleName, pathToGUPBDir, pathToVirtualenv, virtualenvName);
     }
 
-    private void setArgs(String pathToGUPBDir, String pathToVirtualenv, String virtualenvName) {
+    private void setArgs(String moduleName, String pathToGUPBDir, String pathToVirtualenv, String virtualenvName) {
         StringBuilder stringBuilder = new StringBuilder();
 
         switch (operatingSystem) {
@@ -40,7 +40,9 @@ public class PythonRunner {
                         .append(File.separator)
                         .append("Scripts")
                         .append(File.separator)
-                        .append("activate.bat && py -m gupb && ")
+                        .append("activate.bat && py -m ")
+                        .append(moduleName)
+                        .append(" && ")
                         .append(pathToVirtualenv)
                         .append(File.separator)
                         .append("Scripts")
@@ -62,7 +64,9 @@ public class PythonRunner {
                         .append(File.separator)
                         .append("bin")
                         .append(File.separator)
-                        .append("activate && python3 -m gupb && deactivate");
+                        .append("activate && python3 -m ")
+                        .append(moduleName)
+                        .append(" && deactivate");
                 args = new String[] {
                         "/usr/bin/env",
                         "sh",
@@ -96,11 +100,11 @@ public class PythonRunner {
         return exitStatus;
     }
 
-    public PythonExitStatus run(String pathFromAppRootToGUPBDir, String virtualenvName, RunType runType, Round round) {
+    public PythonExitStatus run(String pathFromAppRootToGUPBDir, String virtualenvName, RunType runType, String moduleName, Round round) {
         PythonExitStatus pythonExitStatus;
         try {
             lock.lock();
-            setExecutionPath(pathFromAppRootToGUPBDir, virtualenvName);
+            setExecutionPath(moduleName, pathFromAppRootToGUPBDir, virtualenvName);
             outputProcessing.reset();
             int exitStatus = 1;
 
@@ -115,9 +119,7 @@ public class PythonRunner {
             switch (runType) {
                 case TestRun:
                     exitStatus = execProcess(
-                            line -> {
-                                System.out.println(line);
-                            },
+                            System.out::println,
                             line -> {
                                 System.out.println(line);
                                 outputProcessing.checkAndProcessTraceback(line);

@@ -62,7 +62,7 @@ public class AdminController {
         return admin;
     }
 
-    @PostMapping("/admins/edit")
+    @PutMapping("/admins/edit")
     @Transactional
     public Admin editAdmin(@RequestBody String adminString) throws ResourceConflict {
         JSONObject adminData = new JSONObject(adminString);

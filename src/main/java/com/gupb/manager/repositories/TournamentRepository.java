@@ -10,10 +10,9 @@ import java.util.Optional;
 
 public interface TournamentRepository extends CrudRepository<Tournament, Integer> {
     @Override
-    @Query("select tournament from Tournament tournament left join fetch tournament.creator")
+    @Query("select tournament from Tournament tournament join fetch tournament.creator")
     List<Tournament> findAll();
 
-    @Query("select tournament from Tournament tournament left join fetch tournament.creator")
     Optional<Tournament> findByName(String name);
 
     List<Tournament> findByCreatorId(Integer id);

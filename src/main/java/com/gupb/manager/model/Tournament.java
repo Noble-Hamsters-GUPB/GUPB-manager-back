@@ -24,12 +24,15 @@ public class Tournament {
     @Enumerated(EnumType.STRING)
     private AccessMode accessMode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = Columns.CREATOR_ID)
     private Admin creator;
 
     @Column(name = Columns.GITHUB_LINK)
     private String githubLink;
+
+    @Column(name = Columns.MODULE_NAME)
+    private String moduleName;
 
     @Column(name = Columns.BRANCH_NAME)
     private String branchName;
@@ -39,13 +42,14 @@ public class Tournament {
 
     public Tournament() {}
 
-    public Tournament(String name, AccessMode accessMode, Admin creator, String githubLink, String branchName, String invitationCode) {
+    public Tournament(String name, AccessMode accessMode, Admin creator, String githubLink, String branchName, String invitationCode, String moduleName) {
         this.name = name;
         this.accessMode = accessMode;
         this.creator = creator;
         this.githubLink = githubLink;
         this.branchName = branchName;
         this.invitationCode = invitationCode;
+        this.moduleName = moduleName;
     }
 
     public int getId() {
@@ -73,6 +77,10 @@ public class Tournament {
         return branchName;
     }
 
+    public String getModuleName() {
+        return moduleName;
+    }
+
     public String getInvitationCode() {
         return invitationCode;
     }
@@ -97,6 +105,10 @@ public class Tournament {
         this.githubLink = githubLink;
     }
 
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     public void setBranchName(String branchName) {
         this.branchName = branchName;
     }
@@ -117,6 +129,8 @@ public class Tournament {
 
         public static final String GITHUB_LINK = "github_link";
 
+        public static final String MODULE_NAME = "module_name";
+
         public static final String BRANCH_NAME = "branch_name";
 
         public static final String INVITATION_CODE = "invitation_code";
@@ -132,12 +146,13 @@ public class Tournament {
                 accessMode == that.accessMode &&
                 Objects.equals(creator, that.creator) &&
                 Objects.equals(githubLink, that.githubLink) &&
+                Objects.equals(moduleName, that.moduleName) &&
                 Objects.equals(branchName, that.branchName) &&
                 Objects.equals(invitationCode, that.invitationCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, accessMode, creator, githubLink, branchName, invitationCode);
+        return Objects.hash(id, name, accessMode, creator, githubLink, moduleName, branchName, invitationCode);
     }
 }

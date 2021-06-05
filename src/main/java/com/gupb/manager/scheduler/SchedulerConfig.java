@@ -75,7 +75,7 @@ public class SchedulerConfig {
             e.printStackTrace();
         }
 
-        pythonRunner.run(pathToGUPBDir, virtualenvName, RunType.NormalRun, round);
+        pythonRunner.run(pathToGUPBDir, virtualenvName, RunType.NormalRun, round.getTournament().getModuleName(), round);
 
         try {
             String resultsDirPath = pathToGUPBDir + File.separator + "results";

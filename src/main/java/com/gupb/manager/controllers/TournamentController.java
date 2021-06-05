@@ -3,7 +3,6 @@ package com.gupb.manager.controllers;
 import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.TournamentRepository;
-import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -63,10 +62,11 @@ public class TournamentController {
                 .orElseThrow(() -> new ResourceNotFound("Admin not found"));
         return tournamentRepository.save(new Tournament(name, tournamentData.optEnum(AccessMode.class,
                 "accessMode"), creator, tournamentData.getString("githubLink"),
-                tournamentData.getString("branchName"), tournamentData.getString("invitationCode")));
+                tournamentData.getString("branchName"), tournamentData.getString("invitationCode"),
+                tournamentData.getString("moduleName")));
     }
 
-    @PostMapping("/tournaments/edit")
+    @PutMapping("/tournaments/edit")
     @Transactional
     public Tournament editTournament(@RequestBody String tournamentString) throws ResourceConflict {
         JSONObject tournamentData = new JSONObject(tournamentString);
@@ -87,6 +87,7 @@ public class TournamentController {
         tournament.setGithubLink(tournamentData.getString("githubLink"));
         tournament.setBranchName(tournamentData.getString("branchName"));
         tournament.setInvitationCode(tournamentData.getString("invitationCode"));
+        tournament.setModuleName(tournamentData.getString("moduleName"));
 
         return tournamentRepository.save(tournament);
     }
