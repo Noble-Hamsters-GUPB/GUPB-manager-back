@@ -9,11 +9,13 @@ import com.gupb.manager.repositories.TournamentRepository;
 import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -35,25 +37,32 @@ public class RoundController {
         return roundRepository.findAll();
     }
 
-    @GetMapping("/rounds/{id}")
+    @GetMapping("/rounds/id")
     public @ResponseBody
     ResponseEntity<Round>
-    getRoundById(@PathVariable Integer id) {
+    getRoundById(@RequestParam Integer id) {
         return roundRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Round not found"));
+    }
+
+    @GetMapping("/rounds/tournament")
+    public ResponseEntity<List<Round>>
+    getRoundsByTournament(@RequestParam Integer tournamentId) {
+        return ResponseEntity.ok(roundRepository.findByTournamentId(tournamentId));
     }
 
     @PostMapping("/rounds")
     @Transactional
     public Round createRound(@RequestBody String roundData) {
         JSONObject roundJSON = new JSONObject(roundData);
-        Optional<Tournament> tournamentOptional = tournamentRepository.findById(roundJSON.getInt("tournamentId"));
-        int number = roundJSON.getInt("number");
+        Integer tournamentId = roundJSON.getInt("tournamentId");
+        Optional<Tournament> tournamentOptional = tournamentRepository.findById(tournamentId);
         int numberOfRounds = roundJSON.getInt("numberOfRuns");
         LocalDateTime date = LocalDateTime.parse((String) roundJSON.get("date"));
         Round round = tournamentOptional
-                .map(tournament -> new Round(tournament, number, numberOfRounds, date))
+                .map(tournament -> new Round(tournament,
+                        roundRepository.findByTournamentId(tournamentId).size() + 1, numberOfRounds, date))
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
 
         round = roundRepository.save(round);

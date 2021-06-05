@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -28,13 +29,21 @@ public class TournamentController {
         return tournamentRepository.findAll();
     }
 
-    @GetMapping("/tournaments/{id}")
+    @GetMapping("/tournaments/id")
     public @ResponseBody
     ResponseEntity<Tournament>
-    getTournamentById(@PathVariable Integer id) {
+    getTournamentById(@RequestParam Integer id) {
         return tournamentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+    }
+
+    @GetMapping("tournaments/code")
+    public ResponseEntity<Boolean>
+    checkInvitationCode(@RequestParam Integer id, @RequestParam String code) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        return ResponseEntity.ok(tournament.getInvitationCode().equals(code));
     }
     
     @PostMapping("/tournaments")

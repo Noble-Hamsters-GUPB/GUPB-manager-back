@@ -20,9 +20,9 @@ public class LogsController {
     @Autowired
     private RoundRepository roundRepository;
 
-    @GetMapping("/logs/{id}")
-    public String getLogs(@PathVariable Integer id) {
-        Round round = roundRepository.findById(id)
+    @GetMapping("/logs")
+    public String getLogs(@RequestParam Integer roundId) {
+        Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new ResourceNotFound("Round not found"));
         StringBuilder logs = new StringBuilder();
         try {
