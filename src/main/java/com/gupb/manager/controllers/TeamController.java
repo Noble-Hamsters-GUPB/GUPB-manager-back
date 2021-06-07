@@ -152,12 +152,13 @@ public class TeamController {
 
     @PostMapping("/teams/join")
     @Transactional
-    public Team joinTeam(@RequestParam Integer id, @RequestBody Integer studentId) {
+    public Team joinTeam(@RequestParam Integer id, @RequestParam Integer studentId) {
         return teamRepository.findById(id)
                 .map(team -> studentRepository.findById(studentId)
                         .map(student -> {
                             team.getStudents().add(student);
                             student.getTeams().add(team);
+                            System.out.println(team.getStudents());
                             return team;
                         })
                         .orElseThrow(() -> new ResourceNotFound("Student not found")))
