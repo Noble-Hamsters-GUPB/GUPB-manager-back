@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -172,5 +173,30 @@ public class TeamController {
             team.setLastUpdated(LocalDateTime.now());
             botTester.testTeamBot(team);
         });
+    }
+
+    @GetMapping("/teams/name")
+    public ResponseEntity<Boolean>
+    nameAlreadyExists(@RequestParam String name) {
+        return ResponseEntity.ok(teamRepository.findByName(name).isPresent());
+    }
+
+    @GetMapping("/teams/player")
+    public ResponseEntity<Boolean>
+    playerNameAlreadyExists(@RequestParam String playerName) {
+        return ResponseEntity.ok(teamRepository.findByPlayerName(playerName).isPresent());
+    }
+
+    @GetMapping("teams/tournament-student")
+    public ResponseEntity<Team>
+    getTeamByTournamentAndStudent(@RequestParam Integer tournamentId, @RequestParam Integer studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFound("Student not found"));
+        return student.getTeams()
+                .stream()
+                .filter(team -> team.getTournament().getId() == tournamentId)
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
     }
 }

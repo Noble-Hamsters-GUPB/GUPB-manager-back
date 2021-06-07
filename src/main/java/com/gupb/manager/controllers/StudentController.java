@@ -32,6 +32,13 @@ public class StudentController {
         return studentRepository.findAll();
     }
 
+    @GetMapping("/students/id")
+    public ResponseEntity<Student> getStudent(@RequestParam Integer id) {
+        return studentRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Student not found"));
+    }
+
     @GetMapping("/students/tournaments")
     public @ResponseBody
     ResponseEntity<List<Tournament>>
@@ -105,5 +112,18 @@ public class StudentController {
 
         student = studentRepository.save(student);
         return student;
+    }
+
+    @GetMapping("/students/email")
+    public ResponseEntity<Boolean>
+    emailAlreadyExists(@RequestParam String emailAddress) {
+        return ResponseEntity.ok(adminRepository.findByEmailAddress(emailAddress).isPresent()
+                || studentRepository.findByEmailAddress(emailAddress).isPresent());
+    }
+
+    @GetMapping("/students/index")
+    public ResponseEntity<Boolean>
+    indexAlreadyExists(@RequestParam String indexNumber) {
+        return ResponseEntity.ok(studentRepository.findByIndexNumber(indexNumber).isPresent());
     }
 }
