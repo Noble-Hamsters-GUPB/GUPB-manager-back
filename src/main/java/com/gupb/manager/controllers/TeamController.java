@@ -159,7 +159,6 @@ public class TeamController {
                         .map(student -> {
                             team.getStudents().add(student);
                             student.getTeams().add(team);
-                            System.out.println(team.getStudents());
                             return team;
                         })
                         .orElseThrow(() -> new ResourceNotFound("Student not found")))
