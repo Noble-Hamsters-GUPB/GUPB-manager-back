@@ -91,4 +91,10 @@ public class TournamentController {
 
         return tournamentRepository.save(tournament);
     }
+
+    @GetMapping("/tournaments/name")
+    public ResponseEntity<Boolean>
+    nameAlreadyExists(@RequestParam String tournamentName) {
+        return ResponseEntity.ok(tournamentRepository.findByName(tournamentName).isPresent());
+    }
 }

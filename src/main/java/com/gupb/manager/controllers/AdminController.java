@@ -34,6 +34,13 @@ public class AdminController {
         return adminRepository.findAll();
     }
 
+    @GetMapping("/admins/id")
+    public ResponseEntity<Admin> getAdmin(@RequestParam Integer id) {
+        return adminRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Admin not found"));
+    }
+
     @GetMapping("/admins/tournaments")
     public @ResponseBody
     ResponseEntity<List<Tournament>>
@@ -84,5 +91,12 @@ public class AdminController {
 
         admin = adminRepository.save(admin);
         return admin;
+    }
+
+    @GetMapping("/admins/email")
+    public ResponseEntity<Boolean>
+    emailAlreadyExists(@RequestParam String emailAddress) {
+        return ResponseEntity.ok(adminRepository.findByEmailAddress(emailAddress).isPresent()
+                || studentRepository.findByEmailAddress(emailAddress).isPresent());
     }
 }
