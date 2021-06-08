@@ -5,6 +5,7 @@ import com.gupb.manager.model.Team;
 import com.gupb.manager.repositories.RoundRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,6 +25,9 @@ public class OutputProcessing {
     @Autowired
     private RoundRepository roundRepository;
 
+    @Autowired
+    private SimpMessagingTemplate template;
+
     private static final Pattern runNumPattern = Pattern.compile("\\d+/\\d+\\s\\[.*]$");
 
     public void checkAndProcessTqdmProgressBar(String line, Round round) {
@@ -33,6 +37,7 @@ public class OutputProcessing {
             int runNumber = Integer.parseInt(runString.replaceAll("\\s\\[.*]$", "").split("/")[0]);
             round.setCompletedRuns(runNumber);
             roundRepository.save(round);
+            template.convertAndSend("/topic/rounds/" + round.getId(), runNumber);
         }
     }
 
