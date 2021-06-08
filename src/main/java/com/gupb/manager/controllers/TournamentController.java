@@ -2,6 +2,7 @@ package com.gupb.manager.controllers;
 
 import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.AdminRepository;
+import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TournamentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -22,6 +24,9 @@ public class TournamentController {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
     @GetMapping("/tournaments")
     public Iterable<Tournament> getTournaments() {
@@ -43,6 +48,22 @@ public class TournamentController {
         Tournament tournament = tournamentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
         return ResponseEntity.ok(tournament.getInvitationCode().equals(code));
+    }
+
+    @GetMapping("/tournaments/not-in-tournament")
+    public @ResponseBody
+    ResponseEntity<List<Tournament>>
+    getTournamentsWithoutStudent(@RequestParam Integer id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Student not found"));
+        List<Tournament> tournaments = student.getTeams()
+                .stream()
+                .map(Team::getTournament)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tournamentRepository.findAll()
+                .stream()
+                .filter(tournament -> !tournaments.contains(tournament))
+                .collect(Collectors.toList()));
     }
     
     @PostMapping("/tournaments")
