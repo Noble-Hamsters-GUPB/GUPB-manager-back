@@ -1,7 +1,11 @@
 package com.gupb.manager.python;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +14,14 @@ import java.io.InputStreamReader;
 
 @Component
 public class PythonPackageManager {
+
+    private static final String[] pipOperators = new String[] {"<", ">", "<=", ">=", "==", "!=", "~="};
+
+    private static final String pypiSearchUrl = "https://pypi.org/search/";
+
+    private static final String pypiRequestParamQ = "q";
+
+    private static final String pypiRequestParamPage = "page";
 
     public void createVirtualEnvironment(String pathToVirtualEnvironmentParent, String virtualEnvironmentName) throws PythonPackageManagementException {
         String[] cmd = null;
@@ -120,6 +132,32 @@ public class PythonPackageManager {
             process.destroy();
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean pythonPackageExists(String packageString) {
+
+        for (String op : pipOperators) {
+            packageString = packageString.split(op)[0];
+        }
+
+        final String processedName = packageString.trim();
+
+        String uriString = UriComponentsBuilder.fromHttpUrl(pypiSearchUrl)
+                .queryParam(pypiRequestParamQ, processedName)
+                .queryParam(pypiRequestParamPage, 1)
+                .build()
+                .toUriString();
+
+        try {
+            Document doc = Jsoup.connect(uriString).get();
+            return doc.select("a[class*=\"snippet\"]")
+                    .stream()
+                    .map(snippet -> snippet.select("span[class*=\"name\"]"))
+                    .map(Elements::text)
+                    .anyMatch(text -> text.equals(processedName));
+        } catch (IOException e) {
+            return false;
         }
     }
 }
