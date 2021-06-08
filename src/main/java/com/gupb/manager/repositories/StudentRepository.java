@@ -13,7 +13,6 @@ public interface StudentRepository extends CrudRepository<Student, Integer> {
     @Query("select student from Student student left join fetch student.teams")
     List<Student> findAll();
 
-    @Query("select student from Student student left join fetch student.teams")
     List<Student> findByTeamsId(int teamsId);
 
     Optional<Student> findByEmailAddress(String emailAddress);

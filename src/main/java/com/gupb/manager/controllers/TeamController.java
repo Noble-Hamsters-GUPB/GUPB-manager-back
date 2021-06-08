@@ -1,10 +1,7 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.model.ResourceConflict;
-import com.gupb.manager.model.ResourceNotFound;
+import com.gupb.manager.model.*;
 import com.gupb.manager.bots.BotTester;
-import com.gupb.manager.model.Student;
-import com.gupb.manager.model.Team;
 import com.gupb.manager.repositories.StudentRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import com.gupb.manager.repositories.TournamentRepository;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -41,12 +39,27 @@ public class TeamController {
         return teamRepository.findAll();
     }
 
-    @GetMapping("/teams/{id}")
+    @GetMapping("/teams/id")
     public @ResponseBody ResponseEntity<Team>
-    getTeamById(@PathVariable Integer id) {
+    getTeamById(@RequestParam Integer id) {
         return teamRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Team not found"));
+    }
+
+    @GetMapping("/teams/tournament")
+    public @ResponseBody
+    ResponseEntity<List<Team>>
+    getTeams(@RequestParam Integer tournamentId) {
+        return ResponseEntity.ok(teamRepository.findByTournamentId(tournamentId));
+    }
+
+    @GetMapping("teams/code")
+    public ResponseEntity<Boolean>
+    checkInvitationCode(@RequestParam Integer id, @RequestParam String code) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Team not found"));
+        return ResponseEntity.ok(team.getInvitationCode().equals(code));
     }
 
     @PostMapping("/teams")
@@ -88,7 +101,7 @@ public class TeamController {
         return team;
     }
 
-    @PostMapping("/teams/edit")
+    @PutMapping("/teams/edit")
     @Transactional
     public Team editTeam(@RequestBody String teamString) throws ResourceConflict {
         JSONObject teamData = new JSONObject(teamString);
@@ -138,21 +151,22 @@ public class TeamController {
         return team;
     }
 
-    @PostMapping("/teams/{id}")
+    @PostMapping("/teams/join")
     @Transactional
-    public Team joinTeam(@PathVariable Integer id, @RequestBody Integer studentId) {
+    public Team joinTeam(@RequestParam Integer id, @RequestParam Integer studentId) {
         return teamRepository.findById(id)
                 .map(team -> studentRepository.findById(studentId)
                         .map(student -> {
                             team.getStudents().add(student);
                             student.getTeams().add(team);
+                            System.out.println(team.getStudents());
                             return team;
                         })
                         .orElseThrow(() -> new ResourceNotFound("Student not found")))
                 .orElseThrow(() -> new ResourceNotFound("Team not found"));
     }
 
-    @PostMapping("/update-bot")
+    @PostMapping("/update-player")
     @Transactional
     public void updateBot(@RequestParam(name = "teamId") int teamId) {
         var teamOptional = teamRepository.findById(teamId);
@@ -160,5 +174,30 @@ public class TeamController {
             team.setLastUpdated(LocalDateTime.now());
             botTester.testTeamBot(team);
         });
+    }
+
+    @GetMapping("/teams/name")
+    public ResponseEntity<Boolean>
+    nameAlreadyExists(@RequestParam String name) {
+        return ResponseEntity.ok(teamRepository.findByName(name).isPresent());
+    }
+
+    @GetMapping("/teams/player")
+    public ResponseEntity<Boolean>
+    playerNameAlreadyExists(@RequestParam String playerName) {
+        return ResponseEntity.ok(teamRepository.findByPlayerName(playerName).isPresent());
+    }
+
+    @GetMapping("teams/tournament-student")
+    public ResponseEntity<Team>
+    getTeamByTournamentAndStudent(@RequestParam Integer tournamentId, @RequestParam Integer studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFound("Student not found"));
+        return student.getTeams()
+                .stream()
+                .filter(team -> team.getTournament().getId() == tournamentId)
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
     }
 }

@@ -5,11 +5,16 @@ import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.StudentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -25,6 +30,39 @@ public class StudentController {
     @GetMapping("/students")
     public Iterable<Student> getStudents() {
         return studentRepository.findAll();
+    }
+
+    @GetMapping("/students/id")
+    public ResponseEntity<Student> getStudent(@RequestParam Integer id) {
+        return studentRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Student not found"));
+    }
+
+    @GetMapping("/students/tournaments")
+    public @ResponseBody
+    ResponseEntity<List<Tournament>>
+    getTournaments(@RequestParam Integer id) {
+        Optional<Student> studentOptional = studentRepository.findById(id);
+        Student student = studentOptional.orElseThrow(() -> new ResourceNotFound("Student not found"));
+        List<Tournament> tournaments = student.getTeams()
+                .stream()
+                .map(Team::getTournament)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tournaments);
+    }
+
+    @GetMapping("/students/not_in_tournament")
+    public @ResponseBody
+    ResponseEntity<List<Student>>
+    getStudentsNotInTournament(@RequestParam Integer id) {
+        List<Student> students = studentRepository.findAll()
+                .stream()
+                .filter(student -> student.getTeams()
+                        .stream()
+                        .noneMatch(team -> team.getTournament().getId() == id))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(students);
     }
 
     @PostMapping("/students")
@@ -52,7 +90,7 @@ public class StudentController {
         return student;
     }
 
-    @PostMapping("/students/edit")
+    @PutMapping("/students/edit")
     @Transactional
     public Student editStudent(@RequestBody String studentString) throws ResourceConflict {
         JSONObject studentData = new JSONObject(studentString);
@@ -74,5 +112,18 @@ public class StudentController {
 
         student = studentRepository.save(student);
         return student;
+    }
+
+    @GetMapping("/students/email")
+    public ResponseEntity<Boolean>
+    emailAlreadyExists(@RequestParam String emailAddress) {
+        return ResponseEntity.ok(adminRepository.findByEmailAddress(emailAddress).isPresent()
+                || studentRepository.findByEmailAddress(emailAddress).isPresent());
+    }
+
+    @GetMapping("/students/index")
+    public ResponseEntity<Boolean>
+    indexAlreadyExists(@RequestParam String indexNumber) {
+        return ResponseEntity.ok(studentRepository.findByIndexNumber(indexNumber).isPresent());
     }
 }

@@ -1,17 +1,19 @@
 package com.gupb.manager.controllers;
 
-import com.gupb.manager.model.Admin;
-import com.gupb.manager.model.ResourceConflict;
-import com.gupb.manager.model.ResourceNotFound;
-import com.gupb.manager.model.Student;
+import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.StudentRepository;
+import com.gupb.manager.repositories.TournamentRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -24,9 +26,26 @@ public class AdminController {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
     @GetMapping("/admins")
     public Iterable<Admin> getAdmins() {
         return adminRepository.findAll();
+    }
+
+    @GetMapping("/admins/id")
+    public ResponseEntity<Admin> getAdmin(@RequestParam Integer id) {
+        return adminRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFound("Admin not found"));
+    }
+
+    @GetMapping("/admins/tournaments")
+    public @ResponseBody
+    ResponseEntity<List<Tournament>>
+    getTournaments(@RequestParam Integer id) {
+        return ResponseEntity.ok(tournamentRepository.findByCreatorId(id));
     }
 
     @PostMapping("/admins")
@@ -50,7 +69,7 @@ public class AdminController {
         return admin;
     }
 
-    @PostMapping("/admins/edit")
+    @PutMapping("/admins/edit")
     @Transactional
     public Admin editAdmin(@RequestBody String adminString) throws ResourceConflict {
         JSONObject adminData = new JSONObject(adminString);
@@ -72,5 +91,12 @@ public class AdminController {
 
         admin = adminRepository.save(admin);
         return admin;
+    }
+
+    @GetMapping("/admins/email")
+    public ResponseEntity<Boolean>
+    emailAlreadyExists(@RequestParam String emailAddress) {
+        return ResponseEntity.ok(adminRepository.findByEmailAddress(emailAddress).isPresent()
+                || studentRepository.findByEmailAddress(emailAddress).isPresent());
     }
 }

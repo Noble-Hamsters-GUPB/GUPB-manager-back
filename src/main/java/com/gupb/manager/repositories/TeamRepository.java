@@ -14,8 +14,10 @@ public interface TeamRepository extends CrudRepository<Team, Integer> {
     @Query("select team from Team team left join fetch team.tournament tournament left join fetch team.students")
     List<Team> findAll();
 
-    @Query("select team from Team team left join fetch team.tournament tournament")
+    @Query("select team from Team team left join fetch team.tournament tournament where tournament = :tournament")
     List<Team> findByTournament(Tournament tournament);
+
+    List<Team> findByTournamentId(Integer tournamentId);
 
     Optional<Team> findByName(String name);
 

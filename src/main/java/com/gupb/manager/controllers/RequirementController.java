@@ -40,20 +40,27 @@ public class RequirementController {
     @GetMapping("/requirements")
     public Iterable<Requirement> getRequirements() { return requirementRepository.findAll(); }
 
-    @GetMapping("/requirements/{id}")
-    public ResponseEntity<Requirement> getRequirementById(@PathVariable Integer id) {
+    @GetMapping("/requirements/id")
+    public ResponseEntity<Requirement> getRequirementById(@RequestParam Integer id) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Requirement not exists with id: " + id));
 
         return ResponseEntity.ok(requirement);
     }
 
-    @PutMapping("/requirements/{id}")
-    public ResponseEntity<Requirement> updateRequirement(@PathVariable Integer id, @RequestBody Requirement requirementDetails) {
+    @GetMapping("/requirements/tournament")
+    public ResponseEntity<List<Requirement>> getRequirementsByTournament(@RequestParam Integer id) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        List<Requirement> requirements = requirementRepository.findByTournament(tournament);
+        return ResponseEntity.ok(requirements);
+    }
+
+    @PutMapping("/requirements")
+    public ResponseEntity<Requirement> updateRequirement(@RequestParam Integer id, @RequestBody Requirement requirementDetails) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Requirement not exists with id: " + id));
 
-        requirement.setPackageInfo(requirementDetails.getPackageInfo());
         requirement.setStatus(requirementDetails.getStatus());
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
@@ -65,25 +72,16 @@ public class RequirementController {
 
     @PostMapping("/requirements")
     @Transactional
-    public Requirement createRequirement(@RequestBody String requirementData) throws ResourceConflict {
+    public Requirement createRequirement(@RequestBody String requirementData) {
         JSONObject requirementJSON = new JSONObject(requirementData);
-        Optional<Tournament> tournamentOptional = tournamentRepository.findById(requirementJSON.getInt("tournamentId"));
         Optional<Team> teamOptional = teamRepository.findById(requirementJSON.getInt("teamId"));
         String packageInfo = requirementJSON.getString("packageInfo");
 
-        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
-
-        if(requirementOptional.isPresent()) {
-            throw new ResourceConflict("This requirement already exists");
-        }
-
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
-        Requirement requirement = tournamentOptional
-                .map(tournament -> teamOptional
-                        .map(team -> new Requirement(packageInfo, status, tournament, team))
-                        .orElseThrow(() -> new ResourceNotFound("Team not found")))
-                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        Requirement requirement = teamOptional
+                        .map(team -> new Requirement(packageInfo, status, team))
+                        .orElseThrow(() -> new ResourceNotFound("Team not found"));
 
         requirement = requirementRepository.save(requirement);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
@@ -91,8 +89,8 @@ public class RequirementController {
         return requirement;
     }
 
-    @DeleteMapping("/requirements/{id}")
-    public ResponseEntity<Map<String, Boolean>> deleteRequirement(@PathVariable Integer id) {
+    @DeleteMapping("/requirements")
+    public ResponseEntity<Map<String, Boolean>> deleteRequirement(@RequestParam Integer id) {
         Requirement requirement = requirementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFound("Requirement not exists with id: " + id));
         

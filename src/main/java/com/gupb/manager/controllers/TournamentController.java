@@ -3,13 +3,13 @@ package com.gupb.manager.controllers;
 import com.gupb.manager.model.*;
 import com.gupb.manager.repositories.AdminRepository;
 import com.gupb.manager.repositories.TournamentRepository;
-import com.gupb.manager.scheduler.SchedulerConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @CrossOrigin
@@ -28,13 +28,21 @@ public class TournamentController {
         return tournamentRepository.findAll();
     }
 
-    @GetMapping("/tournaments/{id}")
+    @GetMapping("/tournaments/id")
     public @ResponseBody
     ResponseEntity<Tournament>
-    getTournamentById(@PathVariable Integer id) {
+    getTournamentById(@RequestParam Integer id) {
         return tournamentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+    }
+
+    @GetMapping("tournaments/code")
+    public ResponseEntity<Boolean>
+    checkInvitationCode(@RequestParam Integer id, @RequestParam String code) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Tournament not found"));
+        return ResponseEntity.ok(tournament.getInvitationCode().equals(code));
     }
     
     @PostMapping("/tournaments")
@@ -54,10 +62,11 @@ public class TournamentController {
                 .orElseThrow(() -> new ResourceNotFound("Admin not found"));
         return tournamentRepository.save(new Tournament(name, tournamentData.optEnum(AccessMode.class,
                 "accessMode"), creator, tournamentData.getString("githubLink"),
-                tournamentData.getString("branchName"), tournamentData.getString("invitationCode")));
+                tournamentData.getString("branchName"), tournamentData.getString("invitationCode"),
+                tournamentData.getString("moduleName")));
     }
 
-    @PostMapping("/tournaments/edit")
+    @PutMapping("/tournaments/edit")
     @Transactional
     public Tournament editTournament(@RequestBody String tournamentString) throws ResourceConflict {
         JSONObject tournamentData = new JSONObject(tournamentString);
@@ -78,7 +87,14 @@ public class TournamentController {
         tournament.setGithubLink(tournamentData.getString("githubLink"));
         tournament.setBranchName(tournamentData.getString("branchName"));
         tournament.setInvitationCode(tournamentData.getString("invitationCode"));
+        tournament.setModuleName(tournamentData.getString("moduleName"));
 
         return tournamentRepository.save(tournament);
+    }
+
+    @GetMapping("/tournaments/name")
+    public ResponseEntity<Boolean>
+    nameAlreadyExists(@RequestParam String tournamentName) {
+        return ResponseEntity.ok(tournamentRepository.findByName(tournamentName).isPresent());
     }
 }
