@@ -153,7 +153,7 @@ public class TeamController {
 
     @PostMapping("/teams/join")
     @Transactional
-    public Team joinTeam(@RequestParam Integer id, @RequestBody Integer studentId) {
+    public Team joinTeam(@RequestParam Integer id, @RequestParam Integer studentId) {
         return teamRepository.findById(id)
                 .map(team -> studentRepository.findById(studentId)
                         .map(student -> {
