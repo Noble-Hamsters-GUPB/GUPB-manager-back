@@ -52,7 +52,7 @@ public class StudentController {
         return ResponseEntity.ok(tournaments);
     }
 
-    @GetMapping("/students/not_in_tournament")
+    @GetMapping("/students/not-in-tournament")
     public @ResponseBody
     ResponseEntity<List<Student>>
     getStudentsNotInTournament(@RequestParam Integer id) {
