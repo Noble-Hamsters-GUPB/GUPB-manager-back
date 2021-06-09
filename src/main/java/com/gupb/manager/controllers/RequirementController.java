@@ -124,10 +124,10 @@ public class RequirementController {
     @GetMapping("/requirements/package")
     public ResponseEntity<Boolean>
     packageAlreadyExistsOrIsNotValid(@RequestParam String packageInfo, @RequestParam Integer tournamentId) {
-        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
-        boolean exists = requirementOptional.isPresent();
+        List<Requirement> requirements = requirementRepository.findByPackageInfo(packageInfo);
+        boolean exists = !requirements.isEmpty();
         if(exists) {
-            exists = requirementOptional.get().getRequestedBy().getTournament().getId() == tournamentId;
+            exists = requirements.stream().anyMatch(requirement -> requirement.getRequestedBy().getTournament().getId() == tournamentId);
         }
         return ResponseEntity.ok(exists || !pythonPackageManager.pythonPackageExists(packageInfo));
     }
