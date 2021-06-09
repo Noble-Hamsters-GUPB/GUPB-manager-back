@@ -2,6 +2,7 @@ package com.gupb.manager.controllers;
 
 import com.gupb.manager.mails.MailService;
 import com.gupb.manager.model.*;
+import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.repositories.RequirementRepository;
 import com.gupb.manager.repositories.TeamRepository;
 import com.gupb.manager.repositories.TournamentRepository;
@@ -13,6 +14,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,9 @@ public class RequirementController {
   
     @Autowired
     private SimpMessagingTemplate template;
+
+    @Autowired
+    private PythonPackageManager pythonPackageManager;
 
     @GetMapping("/requirements")
     public Iterable<Requirement> getRequirements() { return requirementRepository.findAll(); }
@@ -77,6 +82,10 @@ public class RequirementController {
         Optional<Team> teamOptional = teamRepository.findById(requirementJSON.getInt("teamId"));
         String packageInfo = requirementJSON.getString("packageInfo");
 
+        if (!pythonPackageManager.pythonPackageExists(packageInfo)) {
+            throw new ResourceNotFound("Could not find package: " + packageInfo);
+        }
+
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
         Requirement requirement = teamOptional
@@ -99,6 +108,17 @@ public class RequirementController {
         response.put("deleted", Boolean.TRUE);
         template.convertAndSend("/topic/requirements", requirementRepository.findAll());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/requirements/package")
+    public ResponseEntity<Boolean>
+    packageAlreadyExistsOrIsNotValid(@RequestParam String packageInfo, @RequestParam Integer tournamentId) {
+        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
+        boolean exists = requirementOptional.isPresent();
+        if(exists) {
+            exists = requirementOptional.get().getRequestedBy().getTournament().getId() == tournamentId;
+        }
+        return ResponseEntity.ok(exists || !pythonPackageManager.pythonPackageExists(packageInfo));
     }
 
     @SendTo("/topic/requirements")
