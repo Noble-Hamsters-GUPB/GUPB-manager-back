@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface StudentRepository extends CrudRepository<Student, Integer> {
     @Override
-    @Query("select student from Student student left join fetch student.teams")
     List<Student> findAll();
 
     List<Student> findByTeamsId(int teamsId);

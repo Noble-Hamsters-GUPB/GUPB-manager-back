@@ -16,6 +16,8 @@ public interface RequirementRepository extends CrudRepository<Requirement, Integ
 
     Optional<Requirement> findByPackageInfo(String packageInfo);
 
+    List<Requirement> findByRequestedBy_Id(Integer teamId);
+
     @Override
     @Query("select requirement from Requirement requirement join fetch requirement.requestedBy")
     List<Requirement> findAll();

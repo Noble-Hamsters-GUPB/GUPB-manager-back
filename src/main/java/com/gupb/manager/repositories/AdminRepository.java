@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface AdminRepository extends CrudRepository<Admin, Integer> {
-
     Optional<Admin> findByEmailAddress(String emailAddress);
 
     Boolean existsByEmailAddress(String email);

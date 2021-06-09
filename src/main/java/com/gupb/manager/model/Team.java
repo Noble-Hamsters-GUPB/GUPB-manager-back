@@ -27,7 +27,7 @@ public class Team {
     @JoinColumn(name = Columns.TOURNAMENT_ID)
     private Tournament tournament;
 
-    @ManyToMany(mappedBy = "teams")
+    @ManyToMany(mappedBy = "teams", fetch = FetchType.EAGER)
     private Set<Student> students;
 
     @Column(name = Columns.NAME)
