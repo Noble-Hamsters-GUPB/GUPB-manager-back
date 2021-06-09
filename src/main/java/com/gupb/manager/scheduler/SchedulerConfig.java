@@ -9,6 +9,7 @@ import com.gupb.manager.python.PythonPackageManager;
 import com.gupb.manager.python.PythonRunner;
 import com.gupb.manager.python.RunType;
 import com.gupb.manager.repositories.RoundRepository;
+import com.gupb.manager.time.TimeData;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class SchedulerConfig {
     }
 
     public void appointRound(Round round) {
-        Date taskDate = Date.from(round.getDate().atZone(ZoneId.systemDefault()).toInstant());
+        Date taskDate = Date.from(round.getDate().atZone(ZoneId.of(TimeData.defaultTimeZoneString)).toInstant());
         System.out.println(taskDate);
         planRound(taskDate, round);
     }
