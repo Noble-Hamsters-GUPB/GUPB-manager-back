@@ -70,7 +70,9 @@ public class RequirementController {
 
         Requirement updatedRequirement = requirementRepository.save(requirement);
 
-        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        Tournament tournament = requirement.getRequestedBy().getTournament();
+
+        template.convertAndSend("/topic/requirements/" + tournament.getId(), requirementRepository.findByTournament(tournament));
         mailService.sendEmailsToStudentsAfterRequestStatusChange(requirement);
         return ResponseEntity.ok(updatedRequirement);
     }
@@ -88,12 +90,18 @@ public class RequirementController {
 
         RequirementStatus status = requirementJSON.optEnum(RequirementStatus.class, "status");
 
-        Requirement requirement = teamOptional
-                        .map(team -> new Requirement(packageInfo, status, team))
-                        .orElseThrow(() -> new ResourceNotFound("Team not found"));
+        Tournament tournament;
 
+        Requirement requirement;
+        if(teamOptional.isPresent()) {
+            tournament = teamOptional.get().getTournament();
+            requirement = new Requirement(packageInfo, status, teamOptional.get());
+        }
+        else {
+            throw new ResourceNotFound("Team not found");
+        }
         requirement = requirementRepository.save(requirement);
-        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+        template.convertAndSend("/topic/requirements/" + tournament.getId(), requirementRepository.findByTournament(tournament));
         mailService.sendEmailToCreatorAfterLibraryRequest(requirement);
         return requirement;
     }
@@ -106,17 +114,20 @@ public class RequirementController {
         requirementRepository.delete(requirement);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
-        template.convertAndSend("/topic/requirements", requirementRepository.findAll());
+
+        Tournament tournament = requirement.getRequestedBy().getTournament();
+
+        template.convertAndSend("/topic/requirements/" + tournament.getId(), requirementRepository.findByTournament(tournament));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/requirements/package")
     public ResponseEntity<Boolean>
     packageAlreadyExistsOrIsNotValid(@RequestParam String packageInfo, @RequestParam Integer tournamentId) {
-        Optional<Requirement> requirementOptional = requirementRepository.findByPackageInfo(packageInfo);
-        boolean exists = requirementOptional.isPresent();
+        List<Requirement> requirements = requirementRepository.findByPackageInfo(packageInfo);
+        boolean exists = !requirements.isEmpty();
         if(exists) {
-            exists = requirementOptional.get().getRequestedBy().getTournament().getId() == tournamentId;
+            exists = requirements.stream().anyMatch(requirement -> requirement.getRequestedBy().getTournament().getId() == tournamentId);
         }
         return ResponseEntity.ok(exists || !pythonPackageManager.pythonPackageExists(packageInfo));
     }

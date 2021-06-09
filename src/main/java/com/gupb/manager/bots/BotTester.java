@@ -9,6 +9,7 @@ import com.gupb.manager.repositories.TeamRepository;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import com.gupb.manager.providers.GameProvider;
 
@@ -30,15 +31,23 @@ public class BotTester {
     @Autowired
     private TeamRepository teamRepository;
 
+    @Autowired
+    private SimpMessagingTemplate template;
+
     public void testTeamBot(Team team) {
         String teamDirName = dirName + team.getSafeName();
         Thread thread = new Thread(() -> {
             team.setPlayerStatus(PlayerStatus.IN_TESTING);
+            team.setMessage("Bot is currently being tested.");
+            template.convertAndSend("/topic/bot-update/" + team.getId(), team);
             try {
                 gameProvider.provideTestRoundWithBot(teamDirName, team);
             } catch (IOException | GitAPIException e) {
+                e.printStackTrace();
                 team.setPlayerStatus(PlayerStatus.INCOMPLETE);
                 team.setMessage("The bot couldn't be tested properly.");
+                teamRepository.save(team);
+                template.convertAndSend("/topic/bot-update/" + team.getId(), team);
                 return;
             }
 
@@ -58,6 +67,7 @@ public class BotTester {
                 team.setMessage("No errors.");
             }
             teamRepository.save(team);
+            template.convertAndSend("/topic/bot-update/" + team.getId(), team);
             try {
                 File file = new File(teamDirName);
                 if (file.exists()) {
